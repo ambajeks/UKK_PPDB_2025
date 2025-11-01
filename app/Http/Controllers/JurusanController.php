@@ -9,8 +9,11 @@ class JurusanController extends Controller
 {
     public function index()
     {
-        $jurusans = Jurusan::all();
-        return view('admin.jurusan.index', compact('jurusans'));
+        // Ambil semua data dari tabel jurusan
+        $jurusan = Jurusan::all();
+
+        // Kirim data ke view
+        return view('admin.jurusan.index', compact('jurusan'));
     }
 
     public function create()
@@ -21,34 +24,36 @@ class JurusanController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama' => 'required',
-            'kode_jurusan' => 'nullable|unique:jurusans,kode_jurusan'
+            'nama' => 'required|string|max:100',
+            'kode_jurusan' => 'required|string|max:10|unique:jurusan'
         ]);
 
         Jurusan::create($request->all());
-
         return redirect()->route('admin.jurusan.index')->with('success', 'Jurusan berhasil ditambahkan!');
     }
 
-    public function edit(Jurusan $jurusan)
+    public function edit($id)
     {
+        $jurusan = Jurusan::findOrFail($id);
         return view('admin.jurusan.edit', compact('jurusan'));
     }
 
-    public function update(Request $request, Jurusan $jurusan)
+    public function update(Request $request, $id)
     {
+        $jurusan = Jurusan::findOrFail($id);
+
         $request->validate([
-            'nama' => 'required',
-            'kode_jurusan' => 'nullable|unique:jurusans,kode_jurusan,' . $jurusan->id
+            'nama' => 'required|string|max:100',
+            'kode_jurusan' => 'required|string|max:10|unique:jurusan,kode_jurusan,' . $id
         ]);
 
         $jurusan->update($request->all());
-
         return redirect()->route('admin.jurusan.index')->with('success', 'Jurusan berhasil diperbarui!');
     }
 
-    public function destroy(Jurusan $jurusan)
+    public function destroy($id)
     {
+        $jurusan = Jurusan::findOrFail($id);
         $jurusan->delete();
 
         return redirect()->route('admin.jurusan.index')->with('success', 'Jurusan berhasil dihapus!');
