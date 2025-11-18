@@ -32,6 +32,16 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        
+         $admin = User::firstOrCreate(
+            ['email' => 'admin@gmail.com'],
+            [
+                'username' => 'admin',
+                'password' => Hash::make('admin123'),
+                'no_hp' => '08123456789'
+            ]
+        );
+
         // Hubungkan role admin ke user admin
         $admin->roles()->syncWithoutDetaching([$adminRole->id]);
 

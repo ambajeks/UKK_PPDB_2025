@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 @section('content')
 <h3>Detail Gelombang</h3>
 <table class="table">
@@ -8,5 +8,5 @@
   <tr><th>Limit</th><td>{{ $gelombang->limit_siswa }}</td></tr>
   <tr><th>Catatan</th><td>{{ $gelombang->catatan }}</td></tr>
 </table>
-<a href="{{ route('gelombang.index') }}" class="btn btn-secondary">Kembali</a>
+<a href="{{ route('admin.gelombang.index') }}" class="btn btn-secondary">Kembali</a>
 @endsection

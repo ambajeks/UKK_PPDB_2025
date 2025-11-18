@@ -4,14 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\GelombangPendaftaran;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 
 class GelombangPendaftaranController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth'); // semua method butuh auth
-        $this->middleware('can:admin')->except(['index', 'show']); // hanya admin boleh create/edit/delete
+        $this->middleware('auth');
+        $this->middleware('can:admin');
     }
 
     public function index()
@@ -22,7 +21,8 @@ class GelombangPendaftaranController extends Controller
 
     public function create()
     {
-        return view('gelombang.create');
+        $gelombang = new GelombangPendaftaran();
+        return view('admin.gelombang.create', compact('gelombang'));
     }
 
     public function store(Request $request)
@@ -37,17 +37,17 @@ class GelombangPendaftaranController extends Controller
 
         GelombangPendaftaran::create($data);
 
-        return redirect()->route('gelombang.index')->with('success', 'Gelombang dibuat.');
+        return redirect()->route('admin.gelombang.index')->with('success', 'Gelombang berhasil dibuat.');
     }
 
     public function show(GelombangPendaftaran $gelombang)
     {
-        return view('gelombang.show', ['gelombang' => $gelombang]);
+        return view('admin.gelombang.show', compact('gelombang'));
     }
 
     public function edit(GelombangPendaftaran $gelombang)
     {
-        return view('gelombang.edit', ['gelombang' => $gelombang]);
+        return view('admin.gelombang.edit', compact('gelombang'));
     }
 
     public function update(Request $request, GelombangPendaftaran $gelombang)
@@ -59,13 +59,16 @@ class GelombangPendaftaranController extends Controller
             'limit_siswa' => 'required|integer|min:0',
             'catatan' => 'nullable|string',
         ]);
+
         $gelombang->update($data);
-        return redirect()->route('gelombang.index')->with('success', 'Gelombang diupdate.');
+
+        return redirect()->route('admin.gelombang.index')->with('success', 'Gelombang berhasil diperbarui.');
     }
 
     public function destroy(GelombangPendaftaran $gelombang)
     {
         $gelombang->delete();
-        return redirect()->route('gelombang.index')->with('success', 'Gelombang dihapus.');
+
+        return redirect()->route('admin.gelombang.index')->with('success', 'Gelombang berhasil dihapus.');
     }
 }

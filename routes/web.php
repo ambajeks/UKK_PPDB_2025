@@ -1,7 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DashboardController;
+
 use App\Http\Controllers\{
     GelombangPendaftaranController,
     PromoController,
@@ -11,7 +14,7 @@ use App\Http\Controllers\{
     DokumenPendaftaranController,
     OrangTuaController,
     WaliController,
-    PembayaranController, // nah iki , isi controller mu salah
+    PembayaranController,
     UserController,
 };
 
@@ -25,20 +28,19 @@ Route::get('/', function () {
     return view('pages.landing');
 });
 
+// Dashboard user biasa
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
-// ✅ Dashboard umum untuk semua user yang login
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-// ✅ Profile routes (semua user login bisa akses)
+// Profile routes
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// ✅ Grup untuk user biasa
+// User biasa
 Route::middleware(['auth'])->group(function () {
     Route::resource('formulir', FormulirPendaftaranController::class);
     Route::resource('dokumen', DokumenPendaftaranController::class);
@@ -47,6 +49,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('pembayaran', PembayaranController::class)->except(['edit', 'update']);
 });
 
+// Admin area
 Route::middleware(['auth', 'can:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [App\Http\Controllers\AdminDashboardController::class, 'index'])->name('dashboard');
     Route::resource('gelombang', GelombangPendaftaranController::class);
@@ -56,6 +59,5 @@ Route::middleware(['auth', 'can:admin'])->prefix('admin')->name('admin.')->group
     Route::resource('users', UserController::class);
 });
 
-
-// ✅ Auth routes (bawaan Breeze)
+// Auth routes
 require __DIR__ . '/auth.php';
