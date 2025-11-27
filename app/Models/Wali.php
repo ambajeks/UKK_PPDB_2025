@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Wali extends Model
 {
+     protected $table = 'wali'; 
     protected $fillable = ['formulir_id','nama_wali','alamat_wali','no_hp_wali'];
        public function formulir()
     { 

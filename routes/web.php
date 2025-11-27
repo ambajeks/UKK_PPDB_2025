@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\DataKeluargaController;
+use App\Http\Controllers\StatusPendaftaranController;
 
 use App\Http\Controllers\{
     GelombangPendaftaranController,
@@ -61,6 +62,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Pembayaran (kecuali edit dan update)
     Route::resource('pembayaran', PembayaranController::class)->except(['edit', 'update']);
 
+    // Data Keluarga Routes (FORM COMBINED BARU)
+    Route::prefix('data-keluarga')->group(function () {
+        Route::get('/', [DataKeluargaController::class, 'index'])->name('data-keluarga.index');
+        Route::post('/combined', [DataKeluargaController::class, 'storeCombined'])->name('data-keluarga.store-combined');
+        Route::post('/wali', [DataKeluargaController::class, 'storeWali'])->name('data-keluarga.store-wali');
+        // Route lama untuk backward compatibility
+        Route::post('/orang-tua', [DataKeluargaController::class, 'storeOrangTua'])->name('data-keluarga.store-orang-tua');
+    });
+
     // Route untuk dokumen
     Route::get('/dokumen', [DokumenController::class, 'index'])->name('dokumen.index');
     Route::post('/dokumen', [DokumenController::class, 'store'])->name('dokumen.store');
@@ -69,7 +79,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // Status Pendaftaran
-Route::get('/status', [FormulirPendaftaranController::class, 'status'])->name('status');
+Route::get('/status', [StatusPendaftaranController::class, 'index'])->name('status');
+
+// Route untuk cetak PDF
+Route::get('/status/cetak-pdf/{id}', [StatusPendaftaranController::class, 'cetakPdf'])->name('status.cetak-pdf');
 
 // Data Siswa
 Route::get('/data-siswa', [DashboardController::class, 'dataSiswa'])->name('data-siswa');
@@ -100,29 +113,9 @@ Route::middleware(['auth', 'can:admin'])
         Route::resource('users', UserController::class);
     });
 
-// routes/web.php
-Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
-    ->name('logout');
-
-Route::middleware(['auth'])->group(function () {
-    // ... routes lainnya
-
-    Route::get('/dokumen', [DokumenController::class, 'index'])->name('dokumen.index');
-    Route::post('/dokumen', [DokumenController::class, 'store'])->name('dokumen.store');
-    Route::get('/dokumen/{id}/download', [DokumenController::class, 'download'])->name('dokumen.download');
-    Route::delete('/dokumen/{id}', [DokumenController::class, 'destroy'])->name('dokumen.destroy');
-
-    //datakeluarga 
-    Route::prefix('data-keluarga')->group(function () {
-    Route::get('/', [DataKeluargaController::class, 'index'])->name('data-keluarga.index');
-    Route::post('/orang-tua', [DataKeluargaController::class, 'storeOrangTua'])->name('data-keluarga.store-orang-tua');
-    Route::post('/wali', [DataKeluargaController::class, 'storeWali'])->name('data-keluarga.store-wali');
-});
-});
-
 /*
 |--------------------------------------------------------------------------
-| Auth (Login / Register)
+| Auth Routes
 |--------------------------------------------------------------------------
 */
 
