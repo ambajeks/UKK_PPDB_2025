@@ -1,45 +1,61 @@
 <x-guest-layout>
+    <h2 class="text-2xl font-bold text-center mb-4 text-gray-900">Daftar Akun Baru</h2>
+    <p class="text-center text-sm mb-6 text-gray-700">Isi data diri kamu untuk membuat akun</p>
 
-    <h2 class="text-2xl font-bold text-center mb-4">Reset Password</h2>
-    <p class="text-center text-sm mb-6">Masukkan password baru untuk akun kamu</p>
-
-    <form method="POST" action="{{ route('password.store') }}">
+    <form method="POST" action="{{ route('register') }}">
         @csrf
 
-        <!-- Token -->
-        <input type="hidden" name="token" value="{{ $request->route('token') }}">
+        <!-- Username -->
+        <div class="mb-4">
+            <x-input-label for="username" value="Username" class="text-gray-900" />
+            <x-text-input id="username" type="text" name="username"
+                class="block mt-1 w-full bg-gray-50 border border-gray-300 text-gray-900"
+                :value="old('username')" required autofocus />
+            <x-input-error :messages="$errors->get('username')" class="mt-2 text-red-600" />
+        </div>
 
         <!-- Email -->
         <div class="mb-4">
-            <x-input-label for="email" value="Email" class="text-white" />
+            <x-input-label for="email" value="Email" class="text-gray-900" />
             <x-text-input id="email" type="email" name="email"
-                class="block mt-1 w-full bg-white/70"
-                :value="old('email', $request->email)" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2 text-red-300" />
+                class="block mt-1 w-full bg-gray-50 border border-gray-300 text-gray-900"
+                :value="old('email')" required />
+            <x-input-error :messages="$errors->get('email')" class="mt-2 text-red-600" />
+        </div>
+
+        <!-- No HP -->
+        <div class="mb-4">
+            <x-input-label for="no_hp" value="Nomor HP" class="text-gray-900" />
+            <x-text-input id="no_hp" type="text" name="no_hp"
+                class="block mt-1 w-full bg-gray-50 border border-gray-300 text-gray-900"
+                :value="old('no_hp')" required />
+            <x-input-error :messages="$errors->get('no_hp')" class="mt-2 text-red-600" />
         </div>
 
         <!-- Password -->
         <div class="mb-4">
-            <x-input-label for="password" value="Password Baru" class="text-white" />
+            <x-input-label for="password" value="Password" class="text-gray-900" />
             <x-text-input id="password" type="password" name="password"
-                class="block mt-1 w-full bg-white/70"
-                required />
-            <x-input-error :messages="$errors->get('password')" class="mt-2 text-red-300" />
+                class="block mt-1 w-full bg-gray-50 border border-gray-300 text-gray-900" required />
+            <x-input-error :messages="$errors->get('password')" class="mt-2 text-red-600" />
         </div>
 
         <!-- Confirm Password -->
         <div class="mb-6">
-            <x-input-label for="password_confirmation" value="Konfirmasi Password" class="text-white" />
+            <x-input-label for="password_confirmation" value="Konfirmasi Password" class="text-gray-900" />
             <x-text-input id="password_confirmation" type="password" name="password_confirmation"
-                class="block mt-1 w-full bg-white/70"
-                required />
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2 text-red-300" />
+                class="block mt-1 w-full bg-gray-50 border border-gray-300 text-gray-900" required />
+            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2 text-red-600" />
         </div>
 
-        <button
-            class="w-full py-2 bg-blue-600 hover:bg-blue-700 transition font-semibold rounded-md">
-            Reset Password
-        </button>
-    </form>
+       <div class="flex items-center justify-between mt-4">
+    <a class="underline text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors duration-300" href="{{ route('login') }}">
+        Sudah punya akun?
+    </a>
 
+    <x-primary-button class="bg-blue-600 hover:bg-blue-700 text-white">
+        Daftar
+    </x-primary-button>
+</div>
+    </form>
 </x-guest-layout>

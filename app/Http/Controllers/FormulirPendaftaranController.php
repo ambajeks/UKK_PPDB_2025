@@ -1,110 +1,108 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\FormulirPendaftaran;
 use App\Models\GelombangPendaftaran;
+use App\Models\Jurusan;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 
 class FormulirPendaftaranController extends Controller
 {
-    public function __construct(){ $this->middleware('auth'); }
-
+    /**
+     * Menampilkan form pendaftaran
+     */
     public function index()
     {
-        // admin melihat semua; user hanya melihat miliknya
-        if (Auth::user()->hasRole('admin')) {
-            $forms = FormulirPendaftaran::paginate(20);
-        } else {
-            $forms = FormulirPendaftaran::where('user_id', Auth::id())->paginate(20);
-        }
-        return view('formulir.index', compact('forms'));
-    }
-
-    public function create()
-    {
+        $formulir = FormulirPendaftaran::where('user_id', auth()->id())->first();
         $gelombangs = GelombangPendaftaran::all();
-        return view('formulir.create', compact('gelombangs'));
+        $jurusan = Jurusan::all();
+
+        return view('formulir.index', compact('formulir', 'gelombangs','jurusan'));
     }
 
+    /**
+     * Menyimpan data formulir pendaftaran
+     */
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'nama_lengkap'=>'required|string|max:100',
-            'nisn'=>'nullable|string|max:20|unique:formulir_pendaftaran,nisn',
-            'asal_sekolah'=>'nullable|string|max:100',
-            'tempat_lahir'=>'nullable|string|max:50',
-            'tanggal_lahir'=>'nullable|date',
-            'agama'=>'nullable|in:Islam,Kristen,Katolik,Hindu,Buddha,Konghucu',
-            'nik'=>'nullable|string|max:20|unique:formulir_pendaftaran,nik',
-            'anak_ke'=>'nullable|integer',
-            'alamat'=>'nullable|string',
-            'desa'=>'nullable|string|max:50',
-            'kelurahan'=>'nullable|string|max:50',
-            'kecamatan'=>'nullable|string|max:50',
-            'kota'=>'nullable|string|max:50',
-            'no_hp'=>'nullable|string|max:20',
-            'gelombang_id'=>'required|exists:gelombang_pendaftaran,id'
+        $validated = $request->validate([
+            'nama_lengkap' => 'required|string|max:100',
+            'nisn' => 'nullable|string|max:20|unique:formulir_pendaftaran,nisn,' . ($request->formulir_id ?? ''),
+            'asal_sekolah' => 'required|string|max:100',
+            'tempat_lahir' => 'required|string|max:50',
+            'tanggal_lahir' => 'required|date',
+            'agama' => 'required|in:Islam,Kristen,Katolik,Hindu,Buddha,Konghucu',
+            'nik' => 'nullable|string|max:20|unique:formulir_pendaftaran,nik,' . ($request->formulir_id ?? ''),
+            'anak_ke' => 'nullable|integer|min:1',
+            'jenis_kelamin' => 'required|string|max:100',
+            'alamat' => 'required|string',
+            'desa' => 'required|string|max:50',
+            'kelurahan' => 'required|string|max:50',
+            'kecamatan' => 'required|string|max:50',
+            'kota' => 'required|string|max:50',
+            'jurusan_id' => 'required',
+            'no_hp' => 'required|string|max:20',
+            'gelombang_id' => 'required|exists:gelombang_pendaftaran,id'
         ]);
 
-        $data['user_id'] = Auth::id();
-        // nomor pendaftaran: buat otomatis unik (prefix + timestamp + random)
-        $data['nomor_pendaftaran'] = 'PPDB-'.date('Ymd').'-'.Str::upper(Str::random(6));
 
-        $form = FormulirPendaftaran::create($data);
-        return redirect()->route('formulir.show', $form)->with('success','Formulir tersimpan.');
+
+        try {
+            if ($request->formulir_id) {
+                dd('masuk update');
+                // Update existing formulir
+                $formulir = FormulirPendaftaran::where('user_id', auth()->id())
+                    ->where('id', $request->formulir_id)
+                    ->firstOrFail();
+
+                $formulir->update($validated);
+
+                $message = 'Formulir berhasil diperbarui!';
+            } else {
+                // dd('masuk create');
+                // Create new formulir
+                $validated['user_id'] = auth()->id();
+                $validated['nomor_pendaftaran'] = $this->generateNomorPendaftaran();
+
+                FormulirPendaftaran::create($validated);
+
+                $message = 'Formulir berhasil disimpan!';
+            }
+
+            return redirect()->route('formulir.index')
+                ->with('success', $message);
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
-    public function show(FormulirPendaftaran $formulir)
+    /**
+     * Generate nomor pendaftaran otomatis
+     */
+    private function generateNomorPendaftaran()
     {
-        $this->authorize('view', $formulir); // opsional jika pakai policy
+        $tahun = date('Y');
+        $bulan = date('m');
+        $lastFormulir = FormulirPendaftaran::latest()->first();
+
+        $sequence = $lastFormulir ? intval(substr($lastFormulir->nomor_pendaftaran, -4)) + 1 : 1;
+
+        return 'PPDB' . $tahun . $bulan . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Menampilkan data formulir (jika perlu)
+     */
+    public function show($id)
+    {
+        $formulir = FormulirPendaftaran::where('user_id', auth()->id())
+            ->findOrFail($id);
+
         return view('formulir.show', compact('formulir'));
-    }
-
-    public function edit(FormulirPendaftaran $formulir)
-    {
-        if (!Auth::user()->hasRole('admin') && $formulir->user_id !== Auth::id()) {
-            abort(403);
-        }
-        $gelombangs = GelombangPendaftaran::all();
-        return view('formulir.edit', compact('formulir','gelombangs'));
-    }
-
-    public function update(Request $request, FormulirPendaftaran $formulir)
-    {
-        if (!Auth::user()->hasRole('admin') && $formulir->user_id !== Auth::id()) {
-            abort(403);
-        }
-
-        $data = $request->validate([
-            'nama_lengkap'=>'required|string|max:100',
-            'nisn'=>'nullable|string|max:20|unique:formulir_pendaftaran,nisn,'.$formulir->id,
-            'asal_sekolah'=>'nullable|string|max:100',
-            'tempat_lahir'=>'nullable|string|max:50',
-            'tanggal_lahir'=>'nullable|date',
-            'agama'=>'nullable|in:Islam,Kristen,Katolik,Hindu,Buddha,Konghucu',
-            'nik'=>'nullable|string|max:20|unique:formulir_pendaftaran,nik,'.$formulir->id,
-            'anak_ke'=>'nullable|integer',
-            'alamat'=>'nullable|string',
-            'desa'=>'nullable|string|max:50',
-            'kelurahan'=>'nullable|string|max:50',
-            'kecamatan'=>'nullable|string|max:50',
-            'kota'=>'nullable|string|max:50',
-            'no_hp'=>'nullable|string|max:20',
-            'gelombang_id'=>'required|exists:gelombang_pendaftaran,id'
-        ]);
-
-        $formulir->update($data);
-        return redirect()->route('formulir.show',$formulir)->with('success','Formulir diperbarui.');
-    }
-
-    public function destroy(FormulirPendaftaran $formulir)
-    {
-        if (!Auth::user()->hasRole('admin') && $formulir->user_id !== Auth::id()) {
-            abort(403);
-        }
-        $formulir->delete();
-        return redirect()->route('formulir.index')->with('success','Formulir dihapus.');
     }
 }

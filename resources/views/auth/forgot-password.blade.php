@@ -5,8 +5,8 @@
 @section('content')
 <div class="auth-card p-4 p-md-5" style="max-width: 420px; width:100%; margin:auto;">
 
-    <h3 class="text-center text-white fw-bold mb-3">Reset Password</h3>
-    <p class="text-center text-white-50 mb-4">Masukkan email kamu untuk menerima link reset password.</p>
+    <h3 class="text-center text-dark fw-bold mb-3">Reset Password</h3>
+    <p class="text-center text-dark 50 mb-4">Masukkan email kamu untuk menerima link reset password.</p>
 
     <!-- Alert Success -->
     @if (session('status'))
@@ -33,13 +33,13 @@
 
         <!-- Email -->
         <div class="mb-4">
-            <label class="text-white fw-semibold">Email</label>
+            <label class="text-dark fw-semibold">Email</label>
             <input type="email" name="email" class="form-control auth-input" value="{{ old('email') }}" required autofocus>
         </div>
 
         <button class="btn btn-primary auth-btn w-100">Kirim Link Reset</button>
 
-        <div class="auth-link text-center mt-3 text-white">
+        <div class="auth-link text-center text-dark">
             <a href="{{ route('login') }}">Kembali ke Login</a>
         </div>
     </form>
@@ -82,7 +82,7 @@
 }
 
 .auth-btn {
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    background: linear-gradient(135deg, #0062ffff, #1d4ed8);
     border: none;
     border-radius: 10px;
     padding: 12px;

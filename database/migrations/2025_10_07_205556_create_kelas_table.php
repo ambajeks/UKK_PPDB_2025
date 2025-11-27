@@ -16,6 +16,7 @@ class CreateKelasTable extends Migration
             $table->integer('kapasitas')->nullable();
             $table->year('tahun_ajaran')->nullable();
             $table->timestamp('created_at')->nullable();
+            $table->timestamp('updated_at')->nullable();
         });
     }
 

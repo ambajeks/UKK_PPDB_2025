@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
-class DokumenPendaftaranController extends Controller
+class DokumenController extends Controller
 {
     public function index()
     {
@@ -18,23 +18,23 @@ class DokumenPendaftaranController extends Controller
 
     public function store(Request $request)
     {
+        // return response()->json(['message' => 'This is a placeholder response.']);      
         $validator = Validator::make($request->all(), [
             'formulir_id' => 'required|exists:formulir_pendaftaran,id',
             'jenis_dokumen' => 'required|in:kartu_keluarga,akta_kelahiran,foto_3x4,surat_keterangan_lulus,ijazah_sd,ktp_orang_tua',
-            'file' => 'required|file|max:2048' // 2MB
+            'file' => 'required|file|max:2048'
         ], [
             'file.max' => 'Ukuran file maksimal 2MB',
             'file.required' => 'File harus diupload'
         ]);
 
-        // Validasi tipe file berdasarkan jenis dokumen
         $jenis = $request->jenis_dokumen;
         $allowedTypes = $this->getAllowedTypes($jenis);
         $validator->after(function ($validator) use ($request, $allowedTypes) {
             if ($request->hasFile('file')) {
                 $file = $request->file('file');
                 $extension = strtolower($file->getClientOriginalExtension());
-                
+
                 if (!in_array($extension, $allowedTypes)) {
                     $allowedTypesText = implode(', ', array_map('strtoupper', $allowedTypes));
                     $validator->errors()->add('file', "Format file tidak diizinkan. Format yang diizinkan: $allowedTypesText");
@@ -43,6 +43,14 @@ class DokumenPendaftaranController extends Controller
         });
 
         if ($validator->fails()) {
+            // Jika request AJAX, return JSON
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
             return redirect()->back()
                 ->withErrors($validator)
                 ->withInput();
@@ -51,8 +59,7 @@ class DokumenPendaftaranController extends Controller
         try {
             $file = $request->file('file');
             $formulir = FormulirPendaftaran::find($request->formulir_id);
-            
-            // Cek apakah user memiliki akses ke formulir ini
+
             if ($formulir->user_id !== auth()->id()) {
                 abort(403);
             }
@@ -62,7 +69,6 @@ class DokumenPendaftaranController extends Controller
                 ->where('jenis_dokumen', $request->jenis_dokumen)
                 ->delete();
 
-            // Generate nama file
             $originalName = $file->getClientOriginalName();
             $extension = $file->getClientOriginalExtension();
             $fileName = 'dokumen_' . $request->jenis_dokumen . '_' . time() . '.' . $extension;
@@ -76,14 +82,41 @@ class DokumenPendaftaranController extends Controller
                 'path_file' => $path,
                 'original_name' => $originalName,
                 'extension' => $extension,
-                'size' => $file->getSize() / 1024, // Convert to KB
+                'size' => $file->getSize() / 1024,
                 'mime_type' => $file->getMimeType()
             ]);
+
+            // Jika request AJAX, return JSON response
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Dokumen berhasil diupload!',
+                    'dokumen' => [
+                        'id' => $dokumen->id,
+                        'original_name' => $dokumen->original_name,
+                        'file_size' => $dokumen->size < 1024 ?
+                            number_format($dokumen->size, 0) . ' KB' :
+                            number_format($dokumen->size / 1024, 1) . ' MB',
+                        'is_image' => in_array(strtolower($dokumen->extension), ['jpg', 'jpeg', 'png', 'gif']),
+                        'file_url' => Storage::url($dokumen->path_file),
+                        'download_url' => route('dokumen.download', $dokumen->id),
+                        'delete_url' => route('dokumen.destroy', $dokumen->id)
+                    ]
+                ]);
+            }
 
             return redirect()->route('dokumen.index')
                 ->with('success', 'Dokumen berhasil diupload!');
 
         } catch (\Exception $e) {
+            // Jika request AJAX, return JSON error
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                ], 500);
+            }
+
             return redirect()->back()
                 ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
@@ -92,8 +125,7 @@ class DokumenPendaftaranController extends Controller
     public function download($id)
     {
         $dokumen = DokumenPendaftaran::findOrFail($id);
-        
-        // Authorization check
+
         if ($dokumen->formulir->user_id !== auth()->id()) {
             abort(403);
         }
@@ -101,26 +133,62 @@ class DokumenPendaftaranController extends Controller
         return Storage::disk('public')->download($dokumen->path_file, $dokumen->original_name);
     }
 
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
         $dokumen = DokumenPendaftaran::findOrFail($id);
-        
-        // Authorization check
+
         if ($dokumen->formulir->user_id !== auth()->id()) {
             abort(403);
         }
 
         try {
-            // Hapus file dari storage
-            Storage::disk('public')->delete($dokumen->path_file);
-            
+            $jenisDokumen = $dokumen->jenis_dokumen;
+
+            // Hapus file
+            $possiblePaths = [
+                storage_path('app/public/' . $dokumen->path_file),
+                public_path('storage/' . $dokumen->path_file),
+            ];
+
+            $deletedFromStorage = false;
+            foreach ($possiblePaths as $path) {
+                if (file_exists($path)) {
+                    unlink($path);
+                    $deletedFromStorage = true;
+                    break;
+                }
+            }
+
+            if (!$deletedFromStorage && Storage::disk('public')->exists($dokumen->path_file)) {
+                Storage::disk('public')->delete($dokumen->path_file);
+                $deletedFromStorage = true;
+            }
+
             // Hapus dari database
             $dokumen->delete();
+
+            // Jika request AJAX
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Dokumen berhasil dihapus!',
+                    'jenis_dokumen' => $jenisDokumen
+                ]);
+            }
 
             return redirect()->route('dokumen.index')
                 ->with('success', 'Dokumen berhasil dihapus!');
 
         } catch (\Exception $e) {
+            \Log::error('Error menghapus dokumen: ' . $e->getMessage());
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                ], 500);
+            }
+
             return redirect()->back()
                 ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }

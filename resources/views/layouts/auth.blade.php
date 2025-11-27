@@ -33,7 +33,7 @@
 
         .auth-input {
             background: rgba(255, 255, 255, 0.6);
-            border: 1px solid rgba(33, 31, 31, 0.4);
+            border: 1px solid rgba(6, 6, 6, 0.4);
             backdrop-filter: blur(6px);
         }
 

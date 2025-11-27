@@ -10,7 +10,6 @@ class CreateOrangTuaTable extends Migration
     {
         Schema::create('orang_tua', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('formulir_id')->unique()->constrained('formulir_pendaftaran')->onDelete('cascade');
             // Ayah
             $table->string('nama_ayah',100)->nullable();
             $table->date('tanggal_lahir_ayah')->nullable();
