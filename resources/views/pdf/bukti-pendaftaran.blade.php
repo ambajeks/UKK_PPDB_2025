@@ -73,7 +73,7 @@
 <body>
     <div class="header">
         <h1>SMK ANTARTIKA 1 SIDAORJO</h1>
-        <p>Jl. Raya Siwalanpanji, Buduran, Sidoarjo (031) 8962851/p>
+        <p>Jl. Raya Siwalanpanji, Buduran, Sidoarjo (031) 8962851</p>
         <p>Website: www.smkantartika1sidoarjo.sch.id | Email: smks.antartika1.sda@gmail.com</p>
     </div>
 
