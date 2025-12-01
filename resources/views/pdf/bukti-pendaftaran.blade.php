@@ -72,9 +72,9 @@
 
 <body>
     <div class="header">
-        <h1>SMK NEGERI 1 CONTOH</h1>
-        <p>Jl. Pendidikan No. 123, Kota Contoh, Telp: (021) 1234567</p>
-        <p>Website: www.smkn1contoh.sch.id | Email: info@smkn1contoh.sch.id</p>
+        <h1>SMK ANTARTIKA 1 SIDAORJO</h1>
+        <p>Jl. Raya Siwalanpanji, Buduran, Sidoarjo (031) 8962851/p>
+        <p>Website: www.smkantartika1sidoarjo.sch.id | Email: smks.antartika1.sda@gmail.com</p>
     </div>
 
     <div class="content">
