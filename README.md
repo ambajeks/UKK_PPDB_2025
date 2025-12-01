@@ -1,4 +1,4 @@
-# PPDB Online SMK Negeri 1 Contoh
+# PPDB Online SMK Antartika 1 Sidoarjo
 
 Aplikasi Penerimaan Peserta Didik Baru (PPDB) Online berbasis Laravel.
 
