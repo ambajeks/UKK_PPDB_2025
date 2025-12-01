@@ -68,7 +68,7 @@ class DatabaseSeeder extends Seeder
                 'tanggal_mulai' => '2024-07-01',
                 'tanggal_selesai' => '2024-08-31',
                 'harga' => 1000000,
-                'limit_siswa' => 100,
+                'limit_siswa' => 90,
             ]
         );
         GelombangPendaftaran::create(

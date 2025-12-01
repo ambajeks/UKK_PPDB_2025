@@ -11,7 +11,12 @@ class LandingPageController extends Controller
     {
         // Ambil gelombang aktif
         // tampilkan gelombang dalam rentang tanggal sekarang dan slot yang masih tersedia
-        $gelombang = GelombangPendaftaran::all();
+        $gelombang = GelombangPendaftaran::whereDate('tanggal_mulai', '<=', now())
+            ->withCount('formulirs')
+            ->get()
+            ->filter(function ($g) {
+                return $g->limit_siswa > $g->formulirs_count;
+            });
 
         // Ambil promo aktif
         $promos = Promo::where('is_aktif', 1)->get();

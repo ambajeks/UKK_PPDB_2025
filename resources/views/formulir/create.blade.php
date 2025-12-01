@@ -12,14 +12,7 @@
     <label class="form-label">NISN</label>
     <input type="text" name="nisn" class="form-control" value="{{ old('nisn') }}">
   </div>
-  <div class="mb-3">
-    <label class="form-label">Gelombang</label>
-    <select name="gelombang_id" class="form-select" required>
-      @foreach($gelombangs as $g)
-      <option value="{{ $g->id }}">{{ $g->nama_gelombang }} ({{ $g->tanggal_mulai }} - {{ $g->tanggal_selesai }})</option>
-      @endforeach
-    </select>
-  </div>
+  <!-- Gelombang otomatis ditentukan oleh sistem -->
   <button class="btn btn-primary">Kirim</button>
 </form>
 @endsection

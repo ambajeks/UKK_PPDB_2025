@@ -63,6 +63,10 @@ class PromoController extends Controller
             if ($data['kode_promo'] !== $promo->kode_promo || $data['nominal_potongan'] != $promo->nominal_potongan) {
                 return redirect()->back()->with('error', 'Promo sudah digunakan dalam transaksi. Tidak dapat mengubah Kode Promo atau Nominal Potongan.');
             }
+
+            if ($data['is_aktif'] != $promo->is_aktif) {
+                return redirect()->back()->with('error', 'Promo sudah digunakan dalam transaksi. Tidak dapat mengubah Status.');
+            }
         }
 
         $promo->update([

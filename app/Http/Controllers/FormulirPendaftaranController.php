@@ -21,7 +21,22 @@ class FormulirPendaftaranController extends Controller
         $gelombangs = GelombangPendaftaran::all();
         $jurusan = Jurusan::all();
 
-        return view('formulir.index', compact('formulir', 'gelombangs', 'jurusan'));
+        // Logika Penentuan Gelombang Otomatis (untuk display)
+        $activeWave = GelombangPendaftaran::whereDate('tanggal_mulai', '<=', now())
+            ->withCount('formulirs')
+            ->get()
+            ->filter(function ($wave) {
+                return $wave->limit_siswa > $wave->formulirs_count;
+            })
+            ->sortBy('tanggal_mulai')
+            ->first();
+
+        // Jika tidak ada yang aktif, ambil yang terakhir (untuk display estimasi)
+        if (!$activeWave) {
+            $activeWave = GelombangPendaftaran::latest()->first();
+        }
+
+        return view('formulir.index', compact('formulir', 'gelombangs', 'jurusan', 'activeWave'));
     }
 
     /**
@@ -46,8 +61,51 @@ class FormulirPendaftaranController extends Controller
             'kota' => 'required|string|max:50',
             'jurusan_id' => 'required',
             'no_hp' => 'required|string|max:20',
-            'gelombang_id' => 'required|exists:gelombang_pendaftaran,id'
+            // 'gelombang_id' => 'required|exists:gelombang_pendaftaran,id' // Dihapus karena otomatis
         ]);
+
+        // Logika Penentuan Gelombang Otomatis
+        $activeWave = GelombangPendaftaran::whereDate('tanggal_mulai', '<=', now())
+            ->withCount('formulirs')
+            ->get()
+            ->filter(function ($wave) {
+                return $wave->limit_siswa > $wave->formulirs_count;
+            })
+            ->sortBy('tanggal_mulai')
+            ->first();
+
+        if ($activeWave) {
+            $validated['gelombang_id'] = $activeWave->id;
+        } else {
+            // Jika tidak ada gelombang aktif/tersedia, buat baru
+            $lastWave = GelombangPendaftaran::latest()->first();
+
+            // Tentukan nama gelombang baru
+            $newWaveName = 'Gelombang 1';
+            $newPrice = 1000000; // Default price
+
+            if ($lastWave) {
+                // Coba ambil angka dari nama gelombang terakhir
+                if (preg_match('/(\d+)$/', $lastWave->nama_gelombang, $matches)) {
+                    $nextNum = intval($matches[1]) + 1;
+                    $newWaveName = 'Gelombang ' . $nextNum;
+                } else {
+                    $newWaveName = $lastWave->nama_gelombang . ' (Lanjutan)';
+                }
+                $newPrice = $lastWave->harga;
+            }
+
+            $newWave = GelombangPendaftaran::create([
+                'nama_gelombang' => $newWaveName,
+                'tanggal_mulai' => now(),
+                'tanggal_selesai' => now()->addMonth(), // Default 1 bulan
+                'limit_siswa' => 250, // Default kapasitas baru
+                'harga' => $newPrice,
+                'catatan' => 'Gelombang otomatis dibuat oleh sistem karena slot sebelumnya penuh.'
+            ]);
+
+            $validated['gelombang_id'] = $newWave->id;
+        }
 
 
 
