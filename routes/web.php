@@ -95,6 +95,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // ✅ DATA SISWA ROUTE - PASTIKAN DI DALAM MIDDLEWARE AUTH
     Route::get('/data-siswa', [DataSiswaController::class, 'index'])->name('data-siswa.index');
+
+    // ✅ SERVE STORAGE FILES ROUTE
+    Route::get('/storage/{path}', [DokumenController::class, 'serve'])->name('storage.serve')->where('path', '.*');
 });
 
 // Status Pendaftaran
@@ -123,6 +126,7 @@ Route::middleware(['auth', 'can:admin'])
         // Dashboard admin
         Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 
+
         // Routes verifikasi
         Route::prefix('verifikasi')->name('verifikasi.')->group(function () {
             Route::get('/', [VerifikasiController::class, 'index'])->name('index');
@@ -138,6 +142,11 @@ Route::middleware(['auth', 'can:admin'])
         Route::resource('jurusan', JurusanController::class);
         Route::resource('kelas', KelasController::class);
         Route::resource('users', UserController::class);
+
+        // Route untuk export laporan
+        Route::get('/laporan/export', [AdminDashboardController::class, 'exportLaporan'])
+            ->name('laporan.export');
+
     });
 /*
 |--------------------------------------------------------------------------

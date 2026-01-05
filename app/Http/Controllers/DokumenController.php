@@ -194,6 +194,26 @@ class DokumenController extends Controller
         }
     }
 
+    public function serve($path)
+    {
+        // Verify the file exists and user has access
+        if (!Storage::disk('public')->exists($path)) {
+            abort(404, 'File not found');
+        }
+
+        // Get the document from database to verify ownership
+        $dokumen = DokumenPendaftaran::where('path_file', $path)->firstOrFail();
+
+        if ($dokumen->formulir->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Get the full path
+        $fullPath = storage_path('app/public/' . $path);
+
+        return response()->file($fullPath);
+    }
+
     private function getAllowedTypes($jenisDokumen)
     {
         $types = [
