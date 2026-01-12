@@ -109,6 +109,11 @@ Route::get('/status/cetak-pdf/{id}', [StatusPendaftaranController::class, 'cetak
 // Pengaturan
 Route::get('/pengaturan', [ProfileController::class, 'pengaturan'])->name('pengaturan');
 
+// QRCode Verification Routes
+Route::get('/verifikasi/qr/{code}', [App\Http\Controllers\QRController::class, 'scanQR'])->name('qr.scan');
+Route::get('/verifikasi/siswa/{id}/{code}', [App\Http\Controllers\QRController::class, 'showSiswa'])->name('qr.siswa');
+Route::get('/verifikasi/siswa-simple/{id}', [App\Http\Controllers\QRController::class, 'showSiswaSimple'])->name('qr.siswa-simple');
+Route::get('/verifikasi/error', [App\Http\Controllers\QRController::class, 'error'])->name('qr.error');
 
 
 /*

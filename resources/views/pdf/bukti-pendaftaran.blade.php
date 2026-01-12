@@ -7,6 +7,7 @@
         body {
             font-family: Arial, sans-serif;
             line-height: 1.6;
+            position: relative;
         }
 
         .header {
@@ -14,6 +15,7 @@
             border-bottom: 2px solid #000;
             padding-bottom: 10px;
             margin-bottom: 20px;
+            position: relative;
         }
 
         .header h1 {
@@ -63,11 +65,6 @@
             margin-top: 20px;
         }
 
-        .info-box h3 {
-            margin-top: 0;
-            color: #312e81;
-        }
-
         .payment-status {
             padding: 5px 10px;
             border-radius: 4px;
@@ -95,38 +92,91 @@
             color: #991b1b;
         }
 
-        .payment-instruction {
-            background-color: #fef3c7;
-            border: 1px solid #f59e0b;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 15px;
-            font-size: 14px;
-        }
-
-        .payment-code {
-            font-family: monospace;
-            font-size: 18px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            color: #1e40af;
-            background-color: #f8fafc;
-            padding: 8px;
-            border: 1px dashed #cbd5e1;
+        /* Styling untuk logo */
+        .logo-container {
+            position: absolute;
+            top: 10px;
+            right: 20px;
             text-align: center;
-            margin: 5px 0;
         }
 
-        .amount-detail {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #f9fafb;
-            border-left: 4px solid #3b82f6;
+        .logo {
+            width: 65px;
+            height: auto;
         }
 
-        .checkmark {
-            color: #10b981;
+        /* Styling untuk tanda tangan digital */
+        .signature-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+
+        .signature-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 30px;
+        }
+
+        .qrcode-section {
+            text-align: center;
+            width: 200px;
+        }
+
+        .qrcode {
+            width: 120px;
+            height: 120px;
+            border: 1px solid #ddd;
+            padding: 5px;
+            background-color: white;
+            margin-bottom: 10px;
+        }
+
+        .signature-info {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .official-signature {
+            text-align: center;
+            width: 300px;
+        }
+
+        .signature-line {
+            margin-top: 60px;
+            border-bottom: 1px solid #000;
+            width: 200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .official-name {
+            margin-top: 5px;
             font-weight: bold;
+        }
+
+        .official-position {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .stamp {
+            position: absolute;
+            opacity: 0.1;
+            font-size: 80px;
+            color: #ff0000;
+            transform: rotate(-45deg);
+            font-weight: bold;
+        }
+
+        .validation-info {
+            font-size: 10px;
+            color: #999;
+            text-align: center;
+            margin-top: 10px;
+            font-style: italic;
         }
     </style>
 </head>
@@ -136,6 +186,18 @@
         <h1>SMK ANTARTIKA 1 SIDAORJO</h1>
         <p>Jl. Raya Siwalanpanji, Buduran, Sidoarjo (031) 8962851</p>
         <p>Website: www.smkantartika1sidoarjo.sch.id | Email: smks.antartika1.sda@gmail.com</p>
+        
+        <!-- Logo sekolah -->
+        <div class="logo-container">
+            @if(file_exists(public_path('images/logo1-removebg-preview.png')))
+                <img src="{{ public_path('images/logo1-removebg-preview.png') }}" alt="Logo SMK Antartika 1" class="logo">
+            @else
+                <!-- Fallback jika logo tidak ada -->
+                <div style="width: 65px; height: 65px; background-color: #f0f0f0; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center;">
+                    <span style="font-size: 10px; text-align: center;">LOGO<br>SMK</span>
+                </div>
+            @endif
+        </div>
     </div>
 
     <div class="content">
@@ -219,151 +281,72 @@
                 <th>Kode Transaksi</th>
                 <td>
                     @if($formulir->pembayaran && $formulir->pembayaran->kode_transaksi)
-                        <div class="payment-code">{{ $formulir->pembayaran->kode_transaksi }}</div>
+                        <div style="font-family: monospace; font-weight: bold; color: #1e40af;">{{ $formulir->pembayaran->kode_transaksi }}</div>
                     @else
                         -
                     @endif
                 </td>
             </tr>
-            @if($formulir->pembayaran)
-           
-            @endif
             <tr>
                 <th>Total Biaya</th>
                 <td>
                     @if($formulir->pembayaran && $formulir->pembayaran->jumlah_akhir)
-                        <div class="amount-detail">
-                            <strong>Rp {{ number_format($formulir->pembayaran->jumlah_akhir, 0, ',', '.') }}</strong>
-                            @if($formulir->pembayaran->jumlah_awal != $formulir->pembayaran->jumlah_akhir)
-                                <br>
-                                <small>
-                                    (Normal: Rp {{ number_format($formulir->pembayaran->jumlah_awal, 0, ',', '.') }})
-                                    @if($formulir->pembayaran->promo_voucher_id)
-                                        <br>[Menggunakan promo/voucher]
-                                    @endif
-                                </small>
-                            @endif
-                        </div>
+                        <strong>Rp {{ number_format($formulir->pembayaran->jumlah_akhir, 0, ',', '.') }}</strong>
                     @elseif($formulir->gelombang && $formulir->gelombang->harga)
-                        <div class="amount-detail">
-                            <strong>Rp {{ number_format($formulir->gelombang->harga, 0, ',', '.') }}</strong>
-                            <br>
-                            <small>Belum ada transaksi pembayaran</small>
-                        </div>
+                        <strong>Rp {{ number_format($formulir->gelombang->harga, 0, ',', '.') }}</strong>
                     @else
                         -
                     @endif
                 </td>
             </tr>
-            @if($formulir->pembayaran)
-            <tr>
-                <th>Metode Pembayaran</th>
-                <td>
-                    {{ $formulir->pembayaran->metode_bayar ?? '-' }}
-                    @if($formulir->pembayaran->midtrans_payment_type)
-                        <br>
-                        <small>({{ $formulir->pembayaran->midtrans_payment_type }})</small>
-                    @endif
-                </td>
-            </tr>
-            <tr>
-                <th>Tanggal Pembayaran</th>
-                <td>
-                    @if($formulir->pembayaran->tanggal_bayar)
-                        {{ \Carbon\Carbon::parse($formulir->pembayaran->tanggal_bayar)->format('d F Y H:i:s') }}
-                    @else
-                        -
-                    @endif
-                </td>
-            </tr>
-            <tr>
-                <th>Verifikasi Pembayaran</th>
-                <td>
-                    @if($formulir->pembayaran->verified_at || $formulir->pembayaran->status === 'Lunas')
-                        <div>
-                            <!-- <span class="checkmark">✓</span>  -->
-                            Telah diverifikasi
-                            @if($formulir->pembayaran->verified_at)
-                                <br>
-                                <small>Pada: {{ \Carbon\Carbon::parse($formulir->pembayaran->verified_at)->format('d F Y H:i') }}</small>
-                            @elseif($formulir->pembayaran->tanggal_bayar)
-                                <br>
-                                <!-- <small>Verifikasi otomatis pada: {{ \Carbon\Carbon::parse($formulir->pembayaran->tanggal_bayar)->format('d F Y H:i') }}</small> -->
-                            @endif
-                            
-                            @if($formulir->pembayaran->admin_verifikasi_id && $formulir->pembayaran->admin_verifikasi_id > 0)
-                                @if($formulir->pembayaran->adminVerifikasi)
-                                    <br>
-                                    <small>Oleh: {{ $formulir->pembayaran->adminVerifikasi->name }}</small>
-                                @endif
-                            @else
-                                <!-- <br>
-                                <small>Oleh: Sistem otomatis</small> -->
-                            @endif
-                        </div>
-                    @else
-                        Belum diverifikasi
-                    @endif
-                </td>
-            </tr>
-            @if($formulir->pembayaran->catatan)
-            <tr>
-                <th>Catatan</th>
-                <td>{{ $formulir->pembayaran->catatan }}</td>
-            </tr>
-            @endif
-            @endif
         </table>
 
-        @if(!$formulir->pembayaran || !$formulir->pembayaran->isPaid())
-        <div class="payment-instruction">
-            <h4 style="margin-top: 0; color: #92400e;">Instruksi Pembayaran:</h4>
-            <ol>
-                <li>Silakan lakukan pembayaran melalui menu <strong>Pembayaran</strong> di akun Anda</li>
-                <li>Pilih metode pembayaran yang tersedia:
-                    <ul>
-                        <li>Transfer Bank (BCA, BNI, BRI, Mandiri, dll)</li>
-                        <li>Virtual Account (VA)</li>
-                        <li>E-Wallet (Gopay, Shopeepay, dll)</li>
-                        <li>QRIS</li>
-                        <li>Convenience Store (Alfamart, Indomaret)</li>
-                    </ul>
-                </li>
-                <li>Pembayaran akan diverifikasi otomatis oleh sistem dalam 1x24 jam</li>
-                <li>Simpan bukti transaksi Anda</li>
-                <li>Pendaftaran hanya sah setelah pembayaran berstatus <strong>LUNAS</strong></li>
-            </ol>
-            @if($formulir->pembayaran && $formulir->pembayaran->kode_transaksi)
-                <p><strong>Kode Transaksi Anda:</strong> {{ $formulir->pembayaran->kode_transaksi }}</p>
+       <!-- BAGIAN D: TANDA TANGAN DIGITAL -->
+<div class="signature-section">
+    <h3>QR</h3>
+    
+    <div class="signature-container">
+        <!-- QR Code Section -->
+        <div class="qrcode-section">
+            @if(isset($qrCodeImage) && !empty($qrCodeImage))
+                <img src="{{ $qrCodeImage }}" alt="QR Code Validasi" class="qrcode">
+            @else
+                <!-- Fallback jika QR Code tidak tersedia -->
+                <div style="width: 120px; height: 120px; background-color: #f0f0f0; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+                    <!-- <div style="text-align: center; font-size: 10px;">
+                        [QR CODE]<br>
+                        Scan untuk<br>
+                        verifikasi
+                    </div> -->
+                </div>
             @endif
-            <p><strong>Hubungi kami jika ada kendala:</strong> (031) 8962851</p>
+            <!-- <div class="signature-info">
+                <strong>SCAN QR CODE</strong><br>
+                Untuk verifikasi data siswa
+            </div> -->
         </div>
-        @endif
 
-        <div class="info-box">
-            <h3>Informasi Penting</h3>
-            <p>Silakan bawa bukti pendaftaran ini ke sekolah untuk:</p>
-            <ul>
-                <li>Pengambilan seragam sekolah (setelah pembayaran LUNAS).</li>
-                <li>Verifikasi berkas fisik (jika diperlukan).</li>
-                <li>Informasi pembagian jadwal pelajaran.</li>
-                <li>Proses administrasi selanjutnya.</li>
-            </ul>
-            <p><strong>Catatan:</strong> 
-                @if($formulir->pembayaran && $formulir->pembayaran->isPaid())
-                    [Pembayaran Anda telah LUNAS. Simpan dokumen ini sebagai bukti sah pendaftaran.]
-                @else
-                    Harap selesaikan pembayaran terlebih dahulu untuk melengkapi proses pendaftaran.
-                @endif
-            </p>
-        </div>
+        <!-- Official Signature Section
+        <div class="official-signature">
+            <div class="signature-line"></div>
+            <div class="official-name">Dr. H. Bambang Sutrisno, M.Pd.</div>
+            <div class="official-position">Kepala Sekolah SMK Antartika 1 Sidoarjo</div>
+            <div class="stamp">RESMI</div>
+            <div class="validation-info">
+                Dokumen ini sah secara digital<br>
+                ID: {{ $formulir->id }} | Tanggal: {{ now()->format('d-m-Y') }}
+            </div>
+        </div> -->
     </div>
-
+    
+    <!-- <div style="text-align: center; margin-top: 20px; font-size: 11px; color: #666;">
+        <strong>Petunjuk:</strong> Scan QR Code di atas untuk melihat data lengkap siswa di website sekolah.
+    </div> -->
+</div>
+</div>
     <div class="footer">
         <p>Dicetak pada: {{ now()->format('d F Y H:i:s') }}</p>
-        @if($formulir->pembayaran)
-            <p>ID Transaksi: {{ $formulir->pembayaran->kode_transaksi ?? '-' }}</p>
-        @endif
+        <p>Dokumen ID: {{ $formulir->nomor_pendaftaran }} | Halaman: 1/1</p>
     </div>
 </body>
 

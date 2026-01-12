@@ -9,6 +9,7 @@ use App\Models\Wali;
 use App\Models\DokumenPendaftaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class StatusPendaftaranController extends Controller
 {
@@ -86,7 +87,21 @@ class StatusPendaftaranController extends Controller
                 ->with('error', 'Anda belum dapat mencetak PDF. Tunggu verifikasi admin.');
         }
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.bukti-pendaftaran', compact('formulir'));
+        // Generate QR Code
+    $qrData = base64_encode($formulir->id . '|' . $formulir->nomor_pendaftaran);
+    $qrUrl = route('qr.scan', ['code' => $qrData]);
+    
+    // Generate QR Code sebagai string SVG
+    $qrCodeSvg = QrCode::size(120)->margin(1)->generate($qrUrl);
+    
+    // Convert SVG to data URI
+    $qrCodeBase64 = 'data:image/svg+xml;base64,' . base64_encode($qrCodeSvg);
+    
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.bukti-pendaftaran', [
+        'formulir' => $formulir,
+        'qrCodeImage' => $qrCodeBase64 // Kirim ke view
+    ]);
+
         return $pdf->download('bukti-pendaftaran-' . $formulir->nomor_pendaftaran . '.pdf');
     }
 }
