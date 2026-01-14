@@ -6,42 +6,45 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            line-height: 1.6;
-            position: relative;
+            line-height: 1.4;
+            margin: 0;
+            padding: 10px;
+            font-size: 10px;
         }
 
         .header {
             text-align: center;
-            border-bottom: 2px solid #000;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            border-bottom: 1.5px solid #000;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
             position: relative;
         }
 
         .header h1 {
             margin: 0;
-            font-size: 24px;
+            font-size: 18px;
         }
 
         .header p {
-            margin: 5px 0 0;
-            font-size: 14px;
+            margin: 3px 0 0;
+            font-size: 9px;
         }
 
         .content {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
+            font-size: 9px;
         }
 
         .table th,
         .table td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 5px;
             text-align: left;
         }
 
@@ -51,25 +54,29 @@
         }
 
         .footer {
-            margin-top: 30px;
-            font-size: 12px;
+            margin-top: 20px;
+            font-size: 8px;
             text-align: center;
             color: #666;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
         }
 
         .info-box {
             background-color: #eef2ff;
             border: 1px solid #c7d2fe;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 20px;
+            padding: 10px;
+            border-radius: 3px;
+            margin-top: 15px;
+            font-size: 9px;
         }
 
         .payment-status {
-            padding: 5px 10px;
-            border-radius: 4px;
+            padding: 3px 6px;
+            border-radius: 3px;
             font-weight: bold;
             display: inline-block;
+            font-size: 9px;
         }
 
         .status-lunas {
@@ -95,20 +102,20 @@
         /* Styling untuk logo */
         .logo-container {
             position: absolute;
-            top: 10px;
-            right: 20px;
+            top: 5px;
+            right: 10px;
             text-align: center;
         }
 
         .logo {
-            width: 65px;
+            width: 45px;
             height: auto;
         }
 
         /* Styling untuk tanda tangan digital */
         .signature-section {
-            margin-top: 40px;
-            padding-top: 20px;
+            margin-top: 20px;
+            padding-top: 10px;
             border-top: 1px solid #ddd;
         }
 
@@ -116,67 +123,88 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
-            margin-top: 30px;
+            margin-top: 15px;
         }
 
         .qrcode-section {
             text-align: center;
-            width: 200px;
+            width: 150px;
         }
 
         .qrcode {
-            width: 120px;
-            height: 120px;
+            width: 80px;
+            height: 80px;
             border: 1px solid #ddd;
-            padding: 5px;
+            padding: 3px;
             background-color: white;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
         .signature-info {
             text-align: center;
-            font-size: 12px;
+            font-size: 8px;
             color: #666;
         }
 
         .official-signature {
             text-align: center;
-            width: 300px;
+            width: 200px;
         }
 
         .signature-line {
-            margin-top: 60px;
+            margin-top: 40px;
             border-bottom: 1px solid #000;
-            width: 200px;
+            width: 150px;
             margin-left: auto;
             margin-right: auto;
         }
 
         .official-name {
-            margin-top: 5px;
+            margin-top: 3px;
             font-weight: bold;
+            font-size: 9px;
         }
 
         .official-position {
-            font-size: 12px;
+            font-size: 8px;
             color: #666;
         }
 
         .stamp {
             position: absolute;
             opacity: 0.1;
-            font-size: 80px;
+            font-size: 60px;
             color: #ff0000;
             transform: rotate(-45deg);
             font-weight: bold;
         }
 
         .validation-info {
-            font-size: 10px;
+            font-size: 7px;
             color: #999;
             text-align: center;
-            margin-top: 10px;
+            margin-top: 5px;
             font-style: italic;
+        }
+
+        h2 {
+            text-align: center;
+            text-decoration: underline;
+            font-size: 14px;
+            margin: 8px 0;
+        }
+
+        h3 {
+            font-size: 11px;
+            margin: 10px 0 8px 0;
+            background-color: #f5f5f5;
+            padding: 4px;
+            border-left: 3px solid #1e40af;
+        }
+
+        p {
+            margin: 3px 0;
+            font-size: 9px;
         }
     </style>
 </head>
@@ -193,15 +221,15 @@
                 <img src="{{ public_path('images/logo1-removebg-preview.png') }}" alt="Logo SMK Antartika 1" class="logo">
             @else
                 <!-- Fallback jika logo tidak ada -->
-                <div style="width: 65px; height: 65px; background-color: #f0f0f0; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center;">
-                    <span style="font-size: 10px; text-align: center;">LOGO<br>SMK</span>
+                <div style="width: 45px; height: 45px; background-color: #f0f0f0; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center;">
+                    <span style="font-size: 7px; text-align: center;">LOGO<br>SMK</span>
                 </div>
             @endif
         </div>
     </div>
 
     <div class="content">
-        <h2 style="text-align: center; text-decoration: underline;">BUKTI PENDAFTARAN SISWA BARU</h2>
+        <h2>BUKTI PENDAFTARAN SISWA BARU</h2>
         <p style="text-align: center;">Tahun Ajaran {{ date('Y') }}/{{ date('Y') + 1 }}</p>
 
         <h3>A. Data Pendaftaran</h3>
@@ -281,7 +309,7 @@
                 <th>Kode Transaksi</th>
                 <td>
                     @if($formulir->pembayaran && $formulir->pembayaran->kode_transaksi)
-                        <div style="font-family: monospace; font-weight: bold; color: #1e40af;">{{ $formulir->pembayaran->kode_transaksi }}</div>
+                        <div style="font-family: monospace; font-weight: bold; color: #1e40af; font-size: 9px;">{{ $formulir->pembayaran->kode_transaksi }}</div>
                     @else
                         -
                     @endif
@@ -312,8 +340,8 @@
                 <img src="{{ $qrCodeImage }}" alt="QR Code Validasi" class="qrcode">
             @else
                 <!-- Fallback jika QR Code tidak tersedia -->
-                <div style="width: 120px; height: 120px; background-color: #f0f0f0; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
-                    <!-- <div style="text-align: center; font-size: 10px;">
+                <div style="width: 80px; height: 80px; background-color: #f0f0f0; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px;">
+                    <!-- <div style="text-align: center; font-size: 7px;">
                         [QR CODE]<br>
                         Scan untuk<br>
                         verifikasi
@@ -326,7 +354,7 @@
             </div> -->
         </div>
 
-        <!-- Official Signature Section
+        <!-- Official Signature Section (dikomentari)
         <div class="official-signature">
             <div class="signature-line"></div>
             <div class="official-name">Dr. H. Bambang Sutrisno, M.Pd.</div>
@@ -339,7 +367,7 @@
         </div> -->
     </div>
     
-    <!-- <div style="text-align: center; margin-top: 20px; font-size: 11px; color: #666;">
+    <!-- <div style="text-align: center; margin-top: 15px; font-size: 9px; color: #666;">
         <strong>Petunjuk:</strong> Scan QR Code di atas untuk melihat data lengkap siswa di website sekolah.
     </div> -->
 </div>
