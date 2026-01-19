@@ -3,12 +3,33 @@
 namespace App\Http\Controllers;
 
 use App\Models\FormulirPendaftaran;
+use App\Models\DokumenPendaftaran;
 use App\Models\RevisiPendaftaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class RevisiController extends Controller
 {
+    /**
+     * Tampilkan halaman index revisi (menu revisi)
+     */
+    public function index()
+    {
+        $formulir = FormulirPendaftaran::where('user_id', auth()->id())->first();
+
+        if (!$formulir) {
+            return redirect()->route('dashboard')
+                ->with('info', 'Anda belum memiliki formulir pendaftaran.');
+        }
+
+        // Ambil semua revisi untuk formulir ini
+        $revisiMenunggu = $formulir->revisi()->where('status_revisi', 'menunggu')->latest()->first();
+        $riwayatRevisi = $formulir->revisi()->where('status_revisi', 'selesai')->latest()->get();
+
+        return view('revisi.index', compact('formulir', 'revisiMenunggu', 'riwayatRevisi'));
+    }
+
     /**
      * Tampilkan form revisi
      */
@@ -20,11 +41,14 @@ class RevisiController extends Controller
         $revisi = $formulir->getRevisiMenunggu();
 
         if (!$revisi) {
-            return redirect()->route('status.index')
+            return redirect()->route('revisi.index')
                 ->with('error', 'Tidak ada revisi yang perlu dikerjakan.');
         }
 
-        return view('revisi.form', compact('formulir', 'revisi'));
+        // Load dokumen yang sudah ada
+        $dokumenAda = $formulir->dokumen->keyBy('jenis_dokumen');
+
+        return view('revisi.form', compact('formulir', 'revisi', 'dokumenAda'));
     }
 
     /**
@@ -39,63 +63,69 @@ class RevisiController extends Controller
 
         // Validasi data sesuai field yang perlu direvisi
         $rules = [];
+        $fieldRevisi = $revisi->field_revisi ?? [];
+        $dokumenRevisi = $revisi->dokumen_revisi ?? [];
 
-        if (in_array('nama_lengkap', $revisi->field_revisi)) {
+        // Validasi field data
+        if (in_array('nama_lengkap', $fieldRevisi)) {
             $rules['nama_lengkap'] = 'required|string|max:100';
         }
-        if (in_array('nisn', $revisi->field_revisi)) {
+        if (in_array('nisn', $fieldRevisi)) {
             $rules['nisn'] = 'nullable|string|max:20';
         }
-        if (in_array('jenis_kelamin', $revisi->field_revisi)) {
+        if (in_array('jenis_kelamin', $fieldRevisi)) {
             $rules['jenis_kelamin'] = 'required|string|max:100';
         }
-        if (in_array('tempat_lahir', $revisi->field_revisi)) {
+        if (in_array('tempat_lahir', $fieldRevisi)) {
             $rules['tempat_lahir'] = 'required|string|max:50';
         }
-        if (in_array('tanggal_lahir', $revisi->field_revisi)) {
+        if (in_array('tanggal_lahir', $fieldRevisi)) {
             $rules['tanggal_lahir'] = 'required|date';
         }
-        if (in_array('asal_sekolah', $revisi->field_revisi)) {
+        if (in_array('asal_sekolah', $fieldRevisi)) {
             $rules['asal_sekolah'] = 'required|string|max:100';
         }
-        if (in_array('agama', $revisi->field_revisi)) {
+        if (in_array('agama', $fieldRevisi)) {
             $rules['agama'] = 'required|in:Islam,Kristen,Katolik,Hindu,Buddha,Konghucu';
         }
-        if (in_array('nik', $revisi->field_revisi)) {
+        if (in_array('nik', $fieldRevisi)) {
             $rules['nik'] = 'nullable|string|max:20';
         }
-        if (in_array('anak_ke', $revisi->field_revisi)) {
+        if (in_array('anak_ke', $fieldRevisi)) {
             $rules['anak_ke'] = 'nullable|integer|min:1';
         }
-        if (in_array('alamat', $revisi->field_revisi)) {
+        if (in_array('alamat', $fieldRevisi)) {
             $rules['alamat'] = 'required|string';
         }
-        if (in_array('desa', $revisi->field_revisi)) {
+        if (in_array('desa', $fieldRevisi)) {
             $rules['desa'] = 'required|string|max:50';
         }
-        if (in_array('kelurahan', $revisi->field_revisi)) {
+        if (in_array('kelurahan', $fieldRevisi)) {
             $rules['kelurahan'] = 'required|string|max:50';
         }
-        if (in_array('kecamatan', $revisi->field_revisi)) {
+        if (in_array('kecamatan', $fieldRevisi)) {
             $rules['kecamatan'] = 'required|string|max:50';
         }
-        if (in_array('kota', $revisi->field_revisi)) {
+        if (in_array('kota', $fieldRevisi)) {
             $rules['kota'] = 'required|string|max:50';
         }
-        if (in_array('no_hp', $revisi->field_revisi)) {
+        if (in_array('no_hp', $fieldRevisi)) {
             $rules['no_hp'] = 'required|string|max:20';
         }
-        if (in_array('dokumen', $revisi->field_revisi)) {
-            $rules['dokumen_upload'] = 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048';
+
+        // Validasi upload dokumen
+        foreach ($dokumenRevisi as $jenisDokumen) {
+            $rules["dokumen_{$jenisDokumen}"] = 'required|file|mimes:pdf,jpg,jpeg,png|max:2048';
         }
 
         $validated = $request->validate($rules);
 
-        DB::transaction(function () use ($formulir, $revisi, $validated, $request) {
-            // Update hanya field yang ada di validated
+        DB::transaction(function () use ($formulir, $revisi, $validated, $request, $dokumenRevisi) {
+            // Update field data
             $updateData = [];
             foreach ($validated as $key => $value) {
-                if ($key !== 'dokumen_upload' && $value !== null) {
+                // Skip dokumen uploads
+                if (!str_starts_with($key, 'dokumen_') && $value !== null) {
                     $updateData[$key] = $value;
                 }
             }
@@ -104,18 +134,53 @@ class RevisiController extends Controller
                 $formulir->update($updateData);
             }
 
-            // Handle dokumen upload jika ada
-            if ($request->hasFile('dokumen_upload')) {
-                $files = $request->file('dokumen_upload');
-                if (!is_array($files)) {
-                    $files = [$files];
-                }
+            // Handle dokumen uploads
+            foreach ($dokumenRevisi as $jenisDokumen) {
+                $inputName = "dokumen_{$jenisDokumen}";
 
-                foreach ($files as $file) {
-                    $path = $file->store('dokumen_revisi', 'public');
+                if ($request->hasFile($inputName)) {
+                    $file = $request->file($inputName);
 
-                    // Simpan ke dokumen_pendaftaran atau update yang lama
-                    // Bisa disesuaikan dengan kebutuhan bisnis
+                    // Cari dokumen lama
+                    $dokumenLama = DokumenPendaftaran::where('formulir_id', $formulir->id)
+                        ->where('jenis_dokumen', $jenisDokumen)
+                        ->first();
+
+                    // Hapus file lama dari storage jika ada
+                    if ($dokumenLama && $dokumenLama->path_file) {
+                        Storage::disk('public')->delete($dokumenLama->path_file);
+                    }
+
+                    // Upload file baru
+                    $path = $file->store('dokumen/' . $formulir->id, 'public');
+                    $extension = $file->getClientOriginalExtension();
+                    $originalName = $file->getClientOriginalName();
+                    $size = round($file->getSize() / 1024, 2); // KB
+                    $mimeType = $file->getMimeType();
+
+                    if ($dokumenLama) {
+                        // Update record yang ada
+                        $dokumenLama->update([
+                            'nama_file' => pathinfo($path, PATHINFO_BASENAME),
+                            'path_file' => $path,
+                            'original_name' => $originalName,
+                            'extension' => $extension,
+                            'size' => $size,
+                            'mime_type' => $mimeType
+                        ]);
+                    } else {
+                        // Buat record baru
+                        DokumenPendaftaran::create([
+                            'formulir_id' => $formulir->id,
+                            'jenis_dokumen' => $jenisDokumen,
+                            'nama_file' => pathinfo($path, PATHINFO_BASENAME),
+                            'path_file' => $path,
+                            'original_name' => $originalName,
+                            'extension' => $extension,
+                            'size' => $size,
+                            'mime_type' => $mimeType
+                        ]);
+                    }
                 }
             }
 
@@ -126,7 +191,7 @@ class RevisiController extends Controller
             ]);
         });
 
-        return redirect()->route('status.index')
+        return redirect()->route('revisi.index')
             ->with('success', 'Revisi berhasil disimpan! Silakan menunggu verifikasi admin.');
     }
 }

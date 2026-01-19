@@ -101,10 +101,17 @@ class VerifikasiController extends Controller
     public function mintaRevisi(Request $request, $id)
     {
         $request->validate([
-            'field_revisi' => 'required|array|min:1',
-            'field_revisi.*' => 'string|in:nama_lengkap,nisn,jenis_kelamin,tempat_lahir,tanggal_lahir,asal_sekolah,agama,nik,anak_ke,alamat,desa,kelurahan,kecamatan,kota,no_hp,dokumen',
+            'field_revisi' => 'nullable|array',
+            'field_revisi.*' => 'string|in:nama_lengkap,nisn,jenis_kelamin,tempat_lahir,tanggal_lahir,asal_sekolah,agama,nik,anak_ke,alamat,desa,kelurahan,kecamatan,kota,no_hp',
+            'dokumen_revisi' => 'nullable|array',
+            'dokumen_revisi.*' => 'string|in:kartu_keluarga,akta_kelahiran,foto_3x4,surat_keterangan_lulus,ijazah_sd,ktp_orang_tua',
             'catatan_revisi' => 'required|string|max:1000'
         ]);
+
+        // Pastikan minimal satu field atau dokumen dipilih
+        if (empty($request->field_revisi) && empty($request->dokumen_revisi)) {
+            return back()->withErrors(['field_revisi' => 'Pilih minimal satu field atau dokumen untuk direvisi.'])->withInput();
+        }
 
         DB::transaction(function () use ($request, $id) {
             $calonSiswa = FormulirPendaftaran::findOrFail($id);
@@ -117,7 +124,8 @@ class VerifikasiController extends Controller
             RevisiPendaftaran::create([
                 'formulir_id' => $id,
                 'admin_id' => auth()->id(),
-                'field_revisi' => $request->field_revisi,
+                'field_revisi' => $request->field_revisi ?? [],
+                'dokumen_revisi' => $request->dokumen_revisi ?? [],
                 'catatan_revisi' => $request->catatan_revisi,
                 'status_revisi' => 'menunggu'
             ]);
@@ -139,4 +147,3 @@ class VerifikasiController extends Controller
         return view('admin.verifikasi.riwayat', compact('calonSiswa'));
     }
 }
-

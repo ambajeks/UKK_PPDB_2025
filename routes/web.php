@@ -102,7 +102,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Revisi Pendaftaran
     Route::prefix('revisi')->name('revisi.')->group(function () {
-        Route::get('/', [RevisiController::class, 'show'])->name('show');
+        Route::get('/', [RevisiController::class, 'index'])->name('index');
+        Route::get('/form', [RevisiController::class, 'show'])->name('show');
         Route::post('/', [RevisiController::class, 'store'])->name('store');
     });
 });
@@ -159,7 +160,6 @@ Route::middleware(['auth', 'can:admin'])
         // Route untuk export laporan
         Route::get('/laporan/export', [AdminDashboardController::class, 'exportLaporan'])
             ->name('laporan.export');
-
     });
 /*
 |--------------------------------------------------------------------------

@@ -42,11 +42,16 @@
                             <th>Jurusan</th>
                             <th>Tanggal Bayar</th>
                             <th>Status Bayar</th>
+                            <th>Status Revisi</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($calonSiswa as $siswa)
+                        @php
+                        $revisiMenunggu = $siswa->revisi()->where('status_revisi', 'menunggu')->first();
+                        $revisiSelesai = $siswa->revisi()->where('status_revisi', 'selesai')->latest()->first();
+                        @endphp
                         <tr>
                             <td>{{ $siswa->nomor_pendaftaran ?? '-' }}</td>
                             <td>{{ $siswa->nama_lengkap }}</td>
@@ -56,6 +61,19 @@
                                 <span class="badge bg-success">
                                     <i class="fas fa-check me-1"></i>Lunas
                                 </span>
+                            </td>
+                            <td>
+                                @if($revisiMenunggu)
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-clock me-1"></i>Menunggu Revisi
+                                </span>
+                                @elseif($revisiSelesai)
+                                <span class="badge bg-info">
+                                    <i class="fas fa-check-circle me-1"></i>Sudah Direvisi
+                                </span>
+                                @else
+                                <span class="badge bg-secondary">-</span>
+                                @endif
                             </td>
                             <td>
                                 <a href="{{ route('admin.verifikasi.show', $siswa->id) }}"

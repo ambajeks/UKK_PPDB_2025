@@ -15,6 +15,7 @@ class RevisiPendaftaran extends Model
         'formulir_id',
         'admin_id',
         'field_revisi',
+        'dokumen_revisi',
         'catatan_revisi',
         'status_revisi',
         'selesai_at'
@@ -22,6 +23,7 @@ class RevisiPendaftaran extends Model
 
     protected $casts = [
         'field_revisi' => 'array',
+        'dokumen_revisi' => 'array',
         'selesai_at' => 'datetime',
     ];
 

@@ -5,8 +5,8 @@
     <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="mb-8">
-            <a href="{{ route('status.index') }}" class="text-blue-600 hover:text-blue-800 inline-flex items-center mb-4">
-                <i class="fas fa-arrow-left mr-2"></i>Kembali ke Status Pendaftaran
+            <a href="{{ route('revisi.index') }}" class="text-blue-600 hover:text-blue-800 inline-flex items-center mb-4">
+                <i class="fas fa-arrow-left mr-2"></i>Kembali ke Menu Revisi
             </a>
             <h1 class="text-3xl font-bold text-gray-800 mb-2">Form Revisi Pendaftaran</h1>
             <p class="text-gray-600">Perbaiki data yang diminta oleh admin</p>
@@ -20,67 +20,58 @@
                     <h4 class="text-yellow-800 font-bold mb-2">Permintaan Revisi dari Admin</h4>
                     <p class="text-yellow-700 mb-3"><strong>Catatan Admin:</strong></p>
                     <p class="text-yellow-700 mb-3 bg-white p-3 rounded border border-yellow-200">{{ $revisi->catatan_revisi }}</p>
-                    <p class="text-yellow-700 mb-3"><strong>Field yang perlu direvisi:</strong></p>
+
+                    @if(!empty($revisi->field_revisi))
+                    <p class="text-yellow-700 mb-2"><strong>Data yang perlu direvisi:</strong></p>
                     <div class="bg-white p-3 rounded border border-yellow-200 mb-3">
                         <ul class="list-disc list-inside text-yellow-700">
                             @foreach($revisi->field_revisi as $field)
-                                <li>
-                                    @switch($field)
-                                        @case('nama_lengkap')
-                                            Nama Lengkap
-                                            @break
-                                        @case('nisn')
-                                            NISN
-                                            @break
-                                        @case('jenis_kelamin')
-                                            Jenis Kelamin
-                                            @break
-                                        @case('tempat_lahir')
-                                            Tempat Lahir
-                                            @break
-                                        @case('tanggal_lahir')
-                                            Tanggal Lahir
-                                            @break
-                                        @case('asal_sekolah')
-                                            Asal Sekolah
-                                            @break
-                                        @case('agama')
-                                            Agama
-                                            @break
-                                        @case('nik')
-                                            NIK
-                                            @break
-                                        @case('anak_ke')
-                                            Anak Ke-
-                                            @break
-                                        @case('alamat')
-                                            Alamat
-                                            @break
-                                        @case('desa')
-                                            Desa
-                                            @break
-                                        @case('kelurahan')
-                                            Kelurahan
-                                            @break
-                                        @case('kecamatan')
-                                            Kecamatan
-                                            @break
-                                        @case('kota')
-                                            Kota
-                                            @break
-                                        @case('no_hp')
-                                            No. HP
-                                            @break
-                                        @case('dokumen')
-                                            Dokumen
-                                            @break
-                                        @default
-                                            {{ $field }}
-                                    @endswitch
-                                </li>
+                            <li>
+                                @switch($field)
+                                @case('nama_lengkap') Nama Lengkap @break
+                                @case('nisn') NISN @break
+                                @case('jenis_kelamin') Jenis Kelamin @break
+                                @case('tempat_lahir') Tempat Lahir @break
+                                @case('tanggal_lahir') Tanggal Lahir @break
+                                @case('asal_sekolah') Asal Sekolah @break
+                                @case('agama') Agama @break
+                                @case('nik') NIK @break
+                                @case('anak_ke') Anak Ke- @break
+                                @case('alamat') Alamat @break
+                                @case('desa') Desa @break
+                                @case('kelurahan') Kelurahan @break
+                                @case('kecamatan') Kecamatan @break
+                                @case('kota') Kota @break
+                                @case('no_hp') No. HP @break
+                                @default {{ $field }}
+                                @endswitch
+                            </li>
                             @endforeach
                         </ul>
                     </div>
+                    @endif
+
+                    @if(!empty($revisi->dokumen_revisi))
+                    <p class="text-yellow-700 mb-2"><strong>Dokumen yang perlu diupload ulang:</strong></p>
+                    <div class="bg-white p-3 rounded border border-yellow-200 mb-3">
+                        <ul class="list-disc list-inside text-yellow-700">
+                            @foreach($revisi->dokumen_revisi as $dokumen)
+                            <li>
+                                @switch($dokumen)
+                                @case('kartu_keluarga') Kartu Keluarga @break
+                                @case('akta_kelahiran') Akta Kelahiran @break
+                                @case('foto_3x4') Foto 3x4 @break
+                                @case('surat_keterangan_lulus') Surat Keterangan Lulus @break
+                                @case('ijazah_sd') Ijazah SD @break
+                                @case('ktp_orang_tua') KTP Orang Tua @break
+                                @default {{ $dokumen }}
+                                @endswitch
+                            </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
+
                     <p class="text-yellow-700 text-sm"><i class="fas fa-info-circle mr-1"></i>Silakan lengkapi field yang ditandai di atas, kemudian klik tombol "Simpan Revisi" di bawah.</p>
                 </div>
             </div>
@@ -90,20 +81,31 @@
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-8 bg-white border-b border-gray-200">
                 @if($errors->any())
-                    <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                        <div class="flex items-center">
-                            <i class="fas fa-exclamation-triangle text-red-500 mr-3"></i>
-                            <span class="text-red-700 font-medium">Terjadi kesalahan. Silakan periksa kembali data yang dimasukkan.</span>
-                        </div>
+                <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-exclamation-triangle text-red-500 mr-3"></i>
+                        <span class="text-red-700 font-medium">Terjadi kesalahan. Silakan periksa kembali data yang dimasukkan.</span>
                     </div>
+                    <ul class="list-disc list-inside text-red-600 text-sm">
+                        @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
                 @endif
 
-                <form method="POST" action="{{ route('revisi.store') }}" class="space-y-8">
+                <form method="POST" action="{{ route('revisi.store') }}" class="space-y-8" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="formulir_id" value="{{ $formulir->id }}">
                     <input type="hidden" name="revisi_id" value="{{ $revisi->id }}">
 
+                    @php
+                    $fieldRevisi = $revisi->field_revisi ?? [];
+                    $dokumenRevisi = $revisi->dokumen_revisi ?? [];
+                    @endphp
+
                     <!-- Section: Data yang Perlu Direvisi -->
+                    @if(!empty($fieldRevisi))
                     <div class="border border-gray-200 rounded-lg p-6">
                         <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
                             <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-3">
@@ -114,7 +116,7 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Nama Lengkap -->
-                            @if(in_array('nama_lengkap', $revisi->field_revisi))
+                            @if(in_array('nama_lengkap', $fieldRevisi))
                             <div class="md:col-span-2">
                                 <label for="nama_lengkap" class="block text-sm font-medium text-gray-700 mb-2">
                                     Nama Lengkap <span class="text-red-500">*</span>
@@ -124,13 +126,13 @@
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                                     placeholder="Masukkan nama lengkap sesuai ijazah" required>
                                 @error('nama_lengkap')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                             @endif
 
                             <!-- NISN -->
-                            @if(in_array('nisn', $revisi->field_revisi))
+                            @if(in_array('nisn', $fieldRevisi))
                             <div>
                                 <label for="nisn" class="block text-sm font-medium text-gray-700 mb-2">
                                     NISN (Nomor Induk Siswa Nasional)
@@ -140,13 +142,13 @@
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                                     placeholder="10 digit NISN" maxlength="10">
                                 @error('nisn')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                             @endif
 
                             <!-- Jenis Kelamin -->
-                            @if(in_array('jenis_kelamin', $revisi->field_revisi))
+                            @if(in_array('jenis_kelamin', $fieldRevisi))
                             <div>
                                 <label for="jenis_kelamin" class="block text-sm font-medium text-gray-700 mb-2">
                                     Jenis Kelamin <span class="text-red-500">*</span>
@@ -159,13 +161,13 @@
                                     <option value="Perempuan" {{ old('jenis_kelamin', $formulir->jenis_kelamin ?? '') === 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
                                 </select>
                                 @error('jenis_kelamin')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                             @endif
 
                             <!-- Tempat Lahir -->
-                            @if(in_array('tempat_lahir', $revisi->field_revisi))
+                            @if(in_array('tempat_lahir', $fieldRevisi))
                             <div>
                                 <label for="tempat_lahir" class="block text-sm font-medium text-gray-700 mb-2">
                                     Tempat Lahir <span class="text-red-500">*</span>
@@ -175,13 +177,13 @@
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                                     placeholder="Kota/Kabupaten lahir" required>
                                 @error('tempat_lahir')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                             @endif
 
                             <!-- Tanggal Lahir -->
-                            @if(in_array('tanggal_lahir', $revisi->field_revisi))
+                            @if(in_array('tanggal_lahir', $fieldRevisi))
                             <div>
                                 <label for="tanggal_lahir" class="block text-sm font-medium text-gray-700 mb-2">
                                     Tanggal Lahir <span class="text-red-500">*</span>
@@ -191,13 +193,13 @@
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                                     required>
                                 @error('tanggal_lahir')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                             @endif
 
                             <!-- Asal Sekolah -->
-                            @if(in_array('asal_sekolah', $revisi->field_revisi))
+                            @if(in_array('asal_sekolah', $fieldRevisi))
                             <div>
                                 <label for="asal_sekolah" class="block text-sm font-medium text-gray-700 mb-2">
                                     Asal Sekolah <span class="text-red-500">*</span>
@@ -207,13 +209,13 @@
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                                     placeholder="Nama sekolah asal" required>
                                 @error('asal_sekolah')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                             @endif
 
                             <!-- Agama -->
-                            @if(in_array('agama', $revisi->field_revisi))
+                            @if(in_array('agama', $fieldRevisi))
                             <div>
                                 <label for="agama" class="block text-sm font-medium text-gray-700 mb-2">
                                     Agama <span class="text-red-500">*</span>
@@ -230,13 +232,13 @@
                                     <option value="Konghucu" {{ old('agama', $formulir->agama ?? '') === 'Konghucu' ? 'selected' : '' }}>Konghucu</option>
                                 </select>
                                 @error('agama')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                             @endif
 
                             <!-- NIK -->
-                            @if(in_array('nik', $revisi->field_revisi))
+                            @if(in_array('nik', $fieldRevisi))
                             <div>
                                 <label for="nik" class="block text-sm font-medium text-gray-700 mb-2">
                                     NIK (Nomor Induk Kependudukan)
@@ -246,13 +248,13 @@
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                                     placeholder="16 digit NIK" maxlength="16">
                                 @error('nik')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                             @endif
 
                             <!-- Anak Ke- -->
-                            @if(in_array('anak_ke', $revisi->field_revisi))
+                            @if(in_array('anak_ke', $fieldRevisi))
                             <div>
                                 <label for="anak_ke" class="block text-sm font-medium text-gray-700 mb-2">
                                     Anak Ke-
@@ -262,13 +264,13 @@
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                                     placeholder="Nomor urut anak" min="1">
                                 @error('anak_ke')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                             @endif
 
                             <!-- Alamat -->
-                            @if(in_array('alamat', $revisi->field_revisi))
+                            @if(in_array('alamat', $fieldRevisi))
                             <div class="md:col-span-2">
                                 <label for="alamat" class="block text-sm font-medium text-gray-700 mb-2">
                                     Alamat <span class="text-red-500">*</span>
@@ -277,13 +279,13 @@
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                                     rows="3" placeholder="Jalan, nomor rumah, RT/RW" required>{{ old('alamat', $formulir->alamat ?? '') }}</textarea>
                                 @error('alamat')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                             @endif
 
                             <!-- Desa -->
-                            @if(in_array('desa', $revisi->field_revisi))
+                            @if(in_array('desa', $fieldRevisi))
                             <div>
                                 <label for="desa" class="block text-sm font-medium text-gray-700 mb-2">
                                     Desa <span class="text-red-500">*</span>
@@ -293,13 +295,13 @@
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                                     placeholder="Nama desa" required>
                                 @error('desa')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                             @endif
 
                             <!-- Kelurahan -->
-                            @if(in_array('kelurahan', $revisi->field_revisi))
+                            @if(in_array('kelurahan', $fieldRevisi))
                             <div>
                                 <label for="kelurahan" class="block text-sm font-medium text-gray-700 mb-2">
                                     Kelurahan <span class="text-red-500">*</span>
@@ -309,13 +311,13 @@
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                                     placeholder="Nama kelurahan" required>
                                 @error('kelurahan')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                             @endif
 
                             <!-- Kecamatan -->
-                            @if(in_array('kecamatan', $revisi->field_revisi))
+                            @if(in_array('kecamatan', $fieldRevisi))
                             <div>
                                 <label for="kecamatan" class="block text-sm font-medium text-gray-700 mb-2">
                                     Kecamatan <span class="text-red-500">*</span>
@@ -325,13 +327,13 @@
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                                     placeholder="Nama kecamatan" required>
                                 @error('kecamatan')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                             @endif
 
                             <!-- Kota -->
-                            @if(in_array('kota', $revisi->field_revisi))
+                            @if(in_array('kota', $fieldRevisi))
                             <div>
                                 <label for="kota" class="block text-sm font-medium text-gray-700 mb-2">
                                     Kota/Kabupaten <span class="text-red-500">*</span>
@@ -341,13 +343,13 @@
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                                     placeholder="Nama kota/kabupaten" required>
                                 @error('kota')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                             @endif
 
                             <!-- No. HP -->
-                            @if(in_array('no_hp', $revisi->field_revisi))
+                            @if(in_array('no_hp', $fieldRevisi))
                             <div>
                                 <label for="no_hp" class="block text-sm font-medium text-gray-700 mb-2">
                                     No. HP <span class="text-red-500">*</span>
@@ -357,39 +359,76 @@
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                                     placeholder="Nomor HP aktif" required>
                                 @error('no_hp')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-                            @endif
-
-                            <!-- Dokumen Upload -->
-                            @if(in_array('dokumen', $revisi->field_revisi))
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    Upload Ulang Dokumen <span class="text-red-500">*</span>
-                                </label>
-                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                                    <i class="fas fa-cloud-upload-alt text-gray-400 text-3xl mb-3"></i>
-                                    <p class="text-gray-600 mb-2">Drag & drop dokumen atau klik untuk browse</p>
-                                    <p class="text-sm text-gray-500">Format: PDF, JPG, PNG (Max 2MB)</p>
-                                    <input type="file" id="dokumen_upload" name="dokumen_upload" 
-                                        class="hidden"
-                                        accept=".pdf,.jpg,.jpeg,.png"
-                                        multiple>
-                                    <button type="button" 
-                                        class="mt-3 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                        onclick="document.getElementById('dokumen_upload').click()">
-                                        Pilih File
-                                    </button>
-                                </div>
-                                <div id="dokumen_list" class="mt-3"></div>
-                                @error('dokumen_upload')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                             @endif
                         </div>
                     </div>
+                    @endif
+
+                    <!-- Section: Dokumen yang Perlu Diupload Ulang -->
+                    @if(!empty($dokumenRevisi))
+                    <div class="border border-orange-200 rounded-lg p-6 bg-orange-50">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                            <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-file text-white text-sm"></i>
+                            </div>
+                            Dokumen yang Perlu Diupload Ulang
+                        </h3>
+                        <p class="text-orange-700 text-sm mb-4">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            File lama akan otomatis terhapus dan diganti dengan file baru yang Anda upload.
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            @php
+                            $dokumenLabels = [
+                            'kartu_keluarga' => 'Kartu Keluarga',
+                            'akta_kelahiran' => 'Akta Kelahiran',
+                            'foto_3x4' => 'Foto 3x4',
+                            'surat_keterangan_lulus' => 'Surat Keterangan Lulus',
+                            'ijazah_sd' => 'Ijazah SD',
+                            'ktp_orang_tua' => 'KTP Orang Tua'
+                            ];
+                            @endphp
+
+                            @foreach($dokumenRevisi as $jenisDokumen)
+                            @php
+                            $label = $dokumenLabels[$jenisDokumen] ?? ucfirst(str_replace('_', ' ', $jenisDokumen));
+                            $inputName = "dokumen_{$jenisDokumen}";
+                            $dokumenLama = $dokumenAda[$jenisDokumen] ?? null;
+                            @endphp
+                            <div class="bg-white p-4 rounded-lg border border-orange-200">
+                                <label for="{{ $inputName }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    {{ $label }} <span class="text-red-500">*</span>
+                                </label>
+
+                                @if($dokumenLama)
+                                <div class="mb-3 p-2 bg-gray-50 rounded border border-gray-200 text-sm">
+                                    <span class="text-gray-500">Dokumen lama:</span>
+                                    <a href="{{ Storage::url($dokumenLama->path_file) }}" target="_blank"
+                                        class="text-blue-600 hover:underline ml-1">
+                                        <i class="fas fa-external-link-alt mr-1"></i>{{ $dokumenLama->original_name ?? 'Lihat' }}
+                                    </a>
+                                </div>
+                                @endif
+
+                                <div class="relative">
+                                    <input type="file" id="{{ $inputName }}" name="{{ $inputName }}"
+                                        accept=".pdf,.jpg,.jpeg,.png"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-200 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-orange-100 file:text-orange-700 hover:file:bg-orange-200"
+                                        required>
+                                </div>
+                                <p class="mt-1 text-xs text-gray-500">Format: PDF, JPG, PNG (Max 2MB)</p>
+                                @error($inputName)
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
 
                     <!-- Submit Button -->
                     <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 pt-6 border-t border-gray-200">
@@ -397,7 +436,7 @@
                             <span class="text-red-500">*</span> Menandakan field wajib diisi
                         </div>
                         <div class="flex space-x-4">
-                            <a href="{{ route('status.index') }}" 
+                            <a href="{{ route('revisi.index') }}"
                                 class="px-8 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-200 font-medium">
                                 <i class="fas fa-times mr-2"></i>Batal
                             </a>
@@ -412,48 +451,4 @@
         </div>
     </div>
 </div>
-
-<script>
-    // Handle dokumen upload dengan drag & drop
-    const dokumenInput = document.getElementById('dokumen_upload');
-    const dropZone = dokumenInput?.parentElement;
-    
-    if (dropZone) {
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('bg-blue-50', 'border-blue-400');
-        });
-
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('bg-blue-50', 'border-blue-400');
-        });
-
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('bg-blue-50', 'border-blue-400');
-            dokumenInput.files = e.dataTransfer.files;
-            updateDokumenList();
-        });
-
-        dokumenInput?.addEventListener('change', updateDokumenList);
-    }
-
-    function updateDokumenList() {
-        const list = document.getElementById('dokumen_list');
-        const files = dokumenInput?.files;
-        
-        if (!files) return;
-
-        list.innerHTML = '<div class="mt-3 space-y-2">';
-        for (let file of files) {
-            list.innerHTML += `
-                <div class="flex items-center justify-between p-2 bg-blue-50 rounded border border-blue-200">
-                    <span class="text-sm text-blue-900"><i class="fas fa-file mr-2"></i>${file.name}</span>
-                    <span class="text-xs text-blue-600">${(file.size / 1024).toFixed(2)} KB</span>
-                </div>
-            `;
-        }
-        list.innerHTML += '</div>';
-    }
-</script>
 @endsection
