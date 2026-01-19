@@ -398,17 +398,22 @@
                             </div>
 
                             <!-- No HP Wali -->
-                            <div>
-                                <label for="no_hp_wali" class="block text-sm font-medium text-gray-700 mb-2">No. Telepon Wali
-                                    *</label>
-                                <input type="text" id="no_hp_wali" name="no_hp_wali"
-                                    value="{{ old('no_hp_wali', $wali->no_hp_wali ?? '') }}"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
-                                    required>
-                                @error('no_hp_wali')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
+<div>
+    <label for="no_hp_wali" class="block text-sm font-medium text-gray-700 mb-2">No. Telepon Wali *</label>
+    <input type="text" id="no_hp_wali" name="no_hp_wali"
+        value="{{ old('no_hp_wali', $wali->no_hp_wali ?? '') }}"
+        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+        pattern="[0-9]*"
+        maxlength="15"
+        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+        onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+        placeholder="Contoh: 081234567890"
+        required>
+    @error('no_hp_wali')
+        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+    @enderror
+    <p class="mt-1 text-xs text-gray-500">Maksimal 15 angka</p>
+</div>
                         </div>
 
                         <!-- Alamat Wali -->

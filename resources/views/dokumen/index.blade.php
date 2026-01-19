@@ -15,7 +15,7 @@
                     <i class="fas fa-lock text-blue-500 mr-3"></i>
                     <div>
                         <span class="text-blue-700 font-medium">Upload Terkunci</span>
-                        <p class="text-blue-600 text-sm">Anda sudah melakukan pembayaran. Dokumen tidak dapat diunggah lagi.</p>
+                        <p class="text-blue-600 text-sm">Anda sudah melakukan pembayaran. Dokumen tidak dapat diunggah atau dihapus lagi.</p>
                     </div>
                 </div>
             </div>
@@ -121,7 +121,7 @@
                 }
                 @endphp
 
-                <div class="border border-gray-200 rounded-lg p-6 hover:border-blue-300 transition duration-200" id="dokumen-{{ $jenis }}">
+                <div class="border border-gray-200 rounded-lg p-6 hover:border-blue-300 transition duration-200 {{ $sudahBayar ? 'opacity-75' : '' }}" id="dokumen-{{ $jenis }}">
                     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                         <!-- Info Dokumen -->
                         <div class="flex-1">
@@ -191,12 +191,8 @@
                                                 <p class="text-gray-600 text-xs">{{ $fileSize }}</p>
                                             </div>
                                     </div>
+                                    @if(!$sudahBayar)
                                     <div class="flex space-x-2">
-                                        <!-- <a href="{{ route('dokumen.download', $dokumen->id) }}"
-                                            class="inline-flex items-center px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-200 text-sm">
-                                            <i class="fas fa-download mr-1"></i>
-                                            Download
-                                        </a> -->
                                         <form action="{{ route('dokumen.destroy', $dokumen->id) }}" method="POST" class="inline">
                                             @csrf
                                             @method('DELETE')
@@ -208,13 +204,14 @@
                                             </button>
                                         </form>
                                     </div>
+                                    @endif
                                 </div>
                             </div>
                             @endif
                         </div>
 
                         <!-- Upload Form -->
-                        @if(!$dokumen)
+                        @if(!$dokumen && !$sudahBayar)
                         <div class="lg:w-64" id="upload-form-{{ $jenis }}">
                             <form action="{{ route('dokumen.store') }}" method="POST" enctype="multipart/form-data" class="upload-form" id="form-{{ $jenis }}">
                                 @csrf
@@ -275,6 +272,10 @@
     .opacity-50 {
         opacity: 0.5;
     }
+    
+    .opacity-75 {
+        opacity: 0.75;
+    }
 </style>
 
 <script>
@@ -283,16 +284,43 @@
         // Disable upload buttons jika sudah bayar
         const sudahBayar = {{ $sudahBayar ? 'true' : 'false' }};
         
+        // Jika sudah bayar, nonaktifkan semua interaksi upload
         if (sudahBayar) {
+            // Nonaktifkan tombol upload jika ada
             document.querySelectorAll('.upload-trigger, .file-input').forEach((element) => {
                 element.disabled = true;
                 element.classList.add('opacity-50', 'cursor-not-allowed');
+            });
+            
+            // Nonaktifkan form submit secara manual
+            document.querySelectorAll('.upload-form').forEach((form) => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    alert('Upload tidak diperbolehkan karena sudah melakukan pembayaran.');
+                });
+            });
+            
+            // Nonaktifkan klik pada upload trigger
+            document.querySelectorAll('.upload-trigger').forEach((trigger) => {
+                trigger.addEventListener('click', function(e) {
+                    if (sudahBayar) {
+                        e.preventDefault();
+                        alert('Upload tidak diperbolehkan karena sudah melakukan pembayaran.');
+                        return false;
+                    }
+                });
             });
         }
 
         // Setup file input triggers - tombol "Upload File" akan membuka file picker
         document.querySelectorAll('.upload-trigger').forEach((trigger) => {
             trigger.addEventListener('click', function() {
+                // Cek jika sudah bayar
+                if (sudahBayar) {
+                    alert('Upload tidak diperbolehkan karena sudah melakukan pembayaran.');
+                    return false;
+                }
+                
                 const form = this.closest('form');
                 const fileInput = form.querySelector('.file-input');
                 if (fileInput) {
@@ -304,6 +332,13 @@
         // Setup file input change events - upload otomatis saat file dipilih
         document.querySelectorAll('.file-input').forEach(input => {
             input.addEventListener('change', async function() {
+                // Cek jika sudah bayar
+                if (sudahBayar) {
+                    alert('Upload tidak diperbolehkan karena sudah melakukan pembayaran.');
+                    this.value = '';
+                    return false;
+                }
+                
                 const form = this.closest('form');
                 const fileInfo = form.querySelector('.file-info');
                 const uploadTrigger = form.querySelector('.upload-trigger');
@@ -413,54 +448,6 @@
         // Sembunyikan form upload
         if (uploadForm) {
             uploadForm.style.display = 'none';
-        }
-
-        // Tambahkan file info section
-        const dokumenContainer = document.getElementById(`dokumen-${jenisDokumen}`);
-        if (dokumenContainer) {
-            const fileInfoHtml = `
-                <div class="mt-4 p-3 bg-gray-50 rounded-lg" id="file-info-${jenisDokumen}">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            ${dokumenData.is_image ? 
-                                `<img src="${dokumenData.file_url}" alt="Preview" class="w-12 h-12 object-cover rounded mr-3 cursor-pointer" onclick="showImagePreview('${dokumenData.file_url}')">` :
-                                `<div class="w-12 h-12 bg-blue-500 rounded flex items-center justify-center mr-3">
-                                    <i class="fas fa-file-pdf text-white"></i>
-                                </div>`
-                            }
-                            <div>
-                                <p class="font-medium text-gray-800 text-sm">${dokumenData.original_name}</p>
-                                <p class="text-gray-600 text-xs">${dokumenData.file_size}</p>
-                            </div>
-                        </div>
-                        <div class="flex space-x-2">
-                            <a href="${dokumenData.download_url}" 
-                               class="inline-flex items-center px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-200 text-sm">
-                                <i class="fas fa-download mr-1"></i>
-                                Download
-                            </a>
-                            <form action="${dokumenData.delete_url}" method="POST" class="inline">
-                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                <input type="hidden" name="_method" value="DELETE">
-                                <button type="submit" 
-                                        class="inline-flex items-center px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-200 text-sm"
-                                        onclick="return confirm('Hapus dokumen ini?')">
-                                    <i class="fas fa-trash mr-1"></i>
-                                    Hapus
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            // Tambahkan file info ke container
-            const infoContainer = dokumenContainer.querySelector('.flex-1');
-            const existingFileInfo = infoContainer.querySelector(`#file-info-${jenisDokumen}`);
-            if (existingFileInfo) {
-                existingFileInfo.remove();
-            }
-            infoContainer.insertAdjacentHTML('beforeend', fileInfoHtml);
         }
 
         // Refresh halaman setelah 2 detik untuk update counter progress
