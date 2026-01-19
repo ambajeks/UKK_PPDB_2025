@@ -21,7 +21,7 @@ class DataKeluargaController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        
+
         // Cek apakah sudah mengisi formulir
         $formulir = FormulirPendaftaran::where('user_id', $user->id)->first();
 
@@ -43,6 +43,11 @@ class DataKeluargaController extends Controller
             ]);
         }
 
+        // Cek status pembayaran
+        $sudahBayar = \App\Models\Pembayaran::where('formulir_id', $formulir->id)
+            ->where('status', 'Lunas')
+            ->exists();
+
         try {
             // Ambil data orang tua (dalam 1 record)
             $orangTua = OrangTua::where('formulir_id', $formulir->id)->first();
@@ -62,7 +67,16 @@ class DataKeluargaController extends Controller
                 $selectedType = $requestType;
             }
 
-            return view('data-keluarga.index', compact('formulir', 'orangTua', 'wali', 'selectedType'));
+            // Cek apakah data sudah disimpan (ada data di database)
+            // Tombol kembali hanya di-disable jika data benar-benar sudah disimpan
+            $dataHasBeenSaved = false;
+            if ($selectedType === 'orang_tua' && $orangTua) {
+                $dataHasBeenSaved = true;
+            } elseif ($selectedType === 'wali' && $wali) {
+                $dataHasBeenSaved = true;
+            }
+
+            return view('data-keluarga.index', compact('formulir', 'orangTua', 'wali', 'selectedType', 'sudahBayar', 'dataHasBeenSaved'));
         } catch (\Exception $e) {
             \Log::error('Error loading data keluarga: ' . $e->getMessage());
 
@@ -70,7 +84,8 @@ class DataKeluargaController extends Controller
                 'formulir' => $formulir,
                 'orangTua' => null,
                 'wali' => null,
-                'selectedType' => null
+                'selectedType' => null,
+                'sudahBayar' => $sudahBayar
             ])->with('error', 'Terjadi kesalahan saat memuat data. Silakan coba lagi.');
         }
     }
@@ -135,7 +150,7 @@ class DataKeluargaController extends Controller
             // Simpan/Update data orang tua dalam 1 record
             $orangTuaData = [
                 'formulir_id' => $request->formulir_id,
-                
+
                 // Data Ayah - field sesuai database
                 'nama_ayah' => $request->input('ayah.nama'),
                 'tanggal_lahir_ayah' => $request->input('ayah.tanggal_lahir'),
@@ -144,7 +159,7 @@ class DataKeluargaController extends Controller
                 'nik_ayah' => $request->input('ayah.nik'),
                 'no_hp_ayah' => $request->input('ayah.no_hp'),
                 'alamat_ayah' => $request->input('ayah.alamat'),
-                
+
                 // Data Ibu - field sesuai database
                 'nama_ibu' => $request->input('ibu.nama'),
                 'tanggal_lahir_ibu' => $request->input('ibu.tanggal_lahir'),
@@ -163,7 +178,8 @@ class DataKeluargaController extends Controller
             DB::commit();
 
             return redirect()->route('data-keluarga.index', ['type' => 'orang_tua'])
-                ->with('success', 'Data orang tua berhasil disimpan!');
+                ->with('success', 'Data orang tua berhasil disimpan!')
+                ->with('data_just_saved', true);
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Error storing combined orang tua: ' . $e->getMessage());
@@ -214,7 +230,8 @@ class DataKeluargaController extends Controller
             DB::commit();
 
             return redirect()->route('data-keluarga.index', ['type' => 'wali'])
-                ->with('success', 'Data wali berhasil disimpan!');
+                ->with('success', 'Data wali berhasil disimpan!')
+                ->with('data_just_saved', true);
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Error storing wali: ' . $e->getMessage());

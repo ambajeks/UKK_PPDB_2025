@@ -36,12 +36,15 @@ class StatusPendaftaranController extends Controller
         $orangTua = OrangTua::where('formulir_id', $formulir->id)->exists();
         $wali = Wali::where('formulir_id', $formulir->id)->exists();
 
+        // Ambil revisi yang menunggu jika ada
+        $revisiMenunggu = $formulir->getRevisiMenunggu();
+
         $progress = $this->getProgress($formulir, $pembayaran, $dokumen, $orangTua, $wali);
         // dd($formu
         // lir);
 
         // dd($pembayaran);
-        return view('status-pendaftaran.index', compact('formulir', 'pembayaran', 'progress'));
+        return view('status-pendaftaran.index', compact('formulir', 'pembayaran', 'progress', 'revisiMenunggu'));
     }
 
     private function getProgress($formulir, $pembayaran, $dokumen, $orangTua, $wali)
@@ -88,19 +91,19 @@ class StatusPendaftaranController extends Controller
         }
 
         // Generate QR Code
-    $qrData = base64_encode($formulir->id . '|' . $formulir->nomor_pendaftaran);
-    $qrUrl = route('qr.scan', ['code' => $qrData]);
-    
-    // Generate QR Code sebagai string SVG
-    $qrCodeSvg = QrCode::size(120)->margin(1)->generate($qrUrl);
-    
-    // Convert SVG to data URI
-    $qrCodeBase64 = 'data:image/svg+xml;base64,' . base64_encode($qrCodeSvg);
-    
-    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.bukti-pendaftaran', [
-        'formulir' => $formulir,
-        'qrCodeImage' => $qrCodeBase64 // Kirim ke view
-    ]);
+        $qrData = base64_encode($formulir->id . '|' . $formulir->nomor_pendaftaran);
+        $qrUrl = route('qr.scan', ['code' => $qrData]);
+
+        // Generate QR Code sebagai string SVG
+        $qrCodeSvg = QrCode::size(120)->margin(1)->generate($qrUrl);
+
+        // Convert SVG to data URI
+        $qrCodeBase64 = 'data:image/svg+xml;base64,' . base64_encode($qrCodeSvg);
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.bukti-pendaftaran', [
+            'formulir' => $formulir,
+            'qrCodeImage' => $qrCodeBase64 // Kirim ke view
+        ]);
 
         return $pdf->download('bukti-pendaftaran-' . $formulir->nomor_pendaftaran . '.pdf');
     }

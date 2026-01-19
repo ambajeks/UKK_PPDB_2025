@@ -13,7 +13,17 @@ class DokumenController extends Controller
     public function index()
     {
         $formulir = auth()->user()->formulir()->first();
-        return view('dokumen.index', compact('formulir'));
+
+        // Cek status pembayaran
+        $sudahBayar = false;
+        if ($formulir) {
+            $pembayaran = \App\Models\Pembayaran::where('formulir_id', $formulir->id)
+                ->where('status', 'Lunas')
+                ->first();
+            $sudahBayar = (bool) $pembayaran;
+        }
+
+        return view('dokumen.index', compact('formulir', 'sudahBayar'));
     }
 
     public function store(Request $request)

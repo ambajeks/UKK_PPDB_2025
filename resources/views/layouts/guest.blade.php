@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'PPDB' }}</title>
-    
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
+
     <style>
         body {
             background-image: url('/images/halaman.jpeg');
@@ -27,9 +28,21 @@
             border: 1px solid rgba(255, 255, 255, 0.25);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
             width: 100%;
-            max-width: 380px; /* Diperkecil dari 420px */
+            max-width: 380px;
+            /* Diperkecil dari 420px */
             padding: 24px;
             color: white;
+        }
+
+        .relative input[type="password"]~button,
+        .relative input[type="text"]~button {
+            position: absolute;
+            top: 50%;
+            color: black;
+            /* font-size: 2rem; */
+            translateY: : -50%;
+            transform: translateY(-50%);
+            right: 10px;
         }
 
         @media (max-width: 480px) {
@@ -53,4 +66,5 @@
         {{ $slot }}
     </div>
 </body>
+
 </html>

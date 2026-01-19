@@ -77,25 +77,57 @@
                     <hr class="my-4">
 
                     <!-- PASSWORD -->
-                    <h6 class="fw-bold mb-3 text-secondary">
-                        <i class="bi bi-lock"></i> Ganti Password (opsional)
-                    </h6>
+<h6 class="fw-bold mb-3 text-secondary">
+    <i class="bi bi-lock"></i> Ganti Password (opsional)
+</h6>
 
-                    <div class="mb-3">
-                        <label class="form-label">Password Lama</label>
-                        <input type="password" name="current_password" class="form-control">
-                    </div>
+<script>
+    function togglePassword(fieldId) {
+        const field = document.getElementById(fieldId);
+        const button = field.nextElementSibling;
+        const icon = button.querySelector('i');
+        
+        if (field.type === 'password') {
+            field.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            field.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    }
+</script>   
 
-                    <div class="mb-3">
-                        <label class="form-label">Password Baru</label>
-                        <input type="password" name="password" class="form-control">
-                    </div>
+<div class="mb-3">
+    <label class="form-label">Password Lama</label>
+    <div class="input-group">
+        <input type="password" name="current_password" class="form-control" id="current_password">
+        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('current_password')">
+            <i class="bi bi-eye"></i>
+        </button>
+    </div>
+</div>
 
-                    <div class="mb-4">
-                        <label class="form-label">Konfirmasi Password Baru</label>
-                        <input type="password" name="password_confirmation" class="form-control">
-                    </div>
+<div class="mb-3">
+    <label class="form-label">Password Baru</label>
+    <div class="input-group">
+        <input type="password" name="password" class="form-control" id="password">
+        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password')">
+            <i class="bi bi-eye"></i>
+        </button>
+    </div>
+</div>
 
+<div class="mb-4">
+    <label class="form-label">Konfirmasi Password Baru</label>
+    <div class="input-group">
+        <input type="password" name="password_confirmation" class="form-control" id="password_confirmation">
+        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password_confirmation')">
+            <i class="bi bi-eye"></i>
+        </button>
+    </div>
+</div>
                     <div class="d-flex justify-content-between">
                         <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary px-4">
                             <i class="bi bi-arrow-left"></i> Kembali

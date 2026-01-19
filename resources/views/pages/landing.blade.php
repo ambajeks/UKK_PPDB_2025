@@ -438,7 +438,7 @@
                             <i class="bi bi-tag"></i>
                             Diskon: <strong>{{ number_format($p->nominal_potongan) }}</strong>
                         </p>
-                        <p class="text-muted">{{ $p->keterangan }}</p>
+                        <p class="text-muted">{{ $p-> kode_promo }}</p>
                         @empty
                         <p class="text-muted mt-3">Belum ada promo aktif.</p>
                         @endforelse

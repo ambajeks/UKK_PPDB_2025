@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\FormulirPendaftaran;
+use App\Models\RevisiPendaftaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -96,6 +97,36 @@ class VerifikasiController extends Controller
             ->with('success', 'Calon siswa berhasil ditolak!');
     }
 
+    // Method untuk minta revisi
+    public function mintaRevisi(Request $request, $id)
+    {
+        $request->validate([
+            'field_revisi' => 'required|array|min:1',
+            'field_revisi.*' => 'string|in:nama_lengkap,nisn,jenis_kelamin,tempat_lahir,tanggal_lahir,asal_sekolah,agama,nik,anak_ke,alamat,desa,kelurahan,kecamatan,kota,no_hp,dokumen',
+            'catatan_revisi' => 'required|string|max:1000'
+        ]);
+
+        DB::transaction(function () use ($request, $id) {
+            $calonSiswa = FormulirPendaftaran::findOrFail($id);
+
+            if (!$calonSiswa->isSiapDiverifikasi()) {
+                throw new \Exception('Calon siswa tidak dalam status menunggu verifikasi.');
+            }
+
+            // Buat revisi baru
+            RevisiPendaftaran::create([
+                'formulir_id' => $id,
+                'admin_id' => auth()->id(),
+                'field_revisi' => $request->field_revisi,
+                'catatan_revisi' => $request->catatan_revisi,
+                'status_revisi' => 'menunggu'
+            ]);
+        });
+
+        return redirect()->route('admin.verifikasi.index')
+            ->with('success', 'Revisi berhasil diminta. Menunggu calon siswa melakukan perubahan.');
+    }
+
     public function riwayat()
     {
         $calonSiswa = FormulirPendaftaran::with(['user', 'jurusan', 'pembayaran', 'adminVerifikasi'])
@@ -108,3 +139,4 @@ class VerifikasiController extends Controller
         return view('admin.verifikasi.riwayat', compact('calonSiswa'));
     }
 }
+

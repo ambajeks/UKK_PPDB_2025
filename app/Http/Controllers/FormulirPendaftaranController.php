@@ -21,6 +21,21 @@ class FormulirPendaftaranController extends Controller
         $gelombangs = GelombangPendaftaran::all();
         $jurusan = Jurusan::all();
 
+        // Cek status pembayaran
+        $sudahBayar = false;
+        if ($formulir) {
+            $pembayaran = \App\Models\Pembayaran::where('formulir_id', $formulir->id)
+                ->where('status', 'Lunas')
+                ->first();
+            $sudahBayar = (bool) $pembayaran;
+        }
+
+        // Ambil revisi yang menunggu jika ada
+        $revisiMenunggu = null;
+        if ($formulir) {
+            $revisiMenunggu = $formulir->getRevisiMenunggu();
+        }
+
         // Logika Penentuan Gelombang Otomatis (untuk display)
         $activeWave = GelombangPendaftaran::whereDate('tanggal_mulai', '<=', now())
             ->withCount('formulirs')
@@ -36,7 +51,7 @@ class FormulirPendaftaranController extends Controller
             $activeWave = GelombangPendaftaran::latest()->first();
         }
 
-        return view('formulir.index', compact('formulir', 'gelombangs', 'jurusan', 'activeWave'));
+        return view('formulir.index', compact('formulir', 'gelombangs', 'jurusan', 'activeWave', 'sudahBayar', 'revisiMenunggu'));
     }
 
     /**

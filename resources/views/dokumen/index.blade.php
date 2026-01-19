@@ -9,6 +9,18 @@
             <p class="text-gray-600 mt-2">Lengkapi semua dokumen yang diperlukan untuk proses pendaftaran</p>
         </div>
 
+        @if($sudahBayar)
+            <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div class="flex items-center">
+                    <i class="fas fa-lock text-blue-500 mr-3"></i>
+                    <div>
+                        <span class="text-blue-700 font-medium">Upload Terkunci</span>
+                        <p class="text-blue-600 text-sm">Anda sudah melakukan pembayaran. Dokumen tidak dapat diunggah lagi.</p>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Status Ringkasan -->
         @php
         $form = auth()->user()->formulir()->first();
@@ -180,11 +192,11 @@
                                             </div>
                                     </div>
                                     <div class="flex space-x-2">
-                                        <a href="{{ route('dokumen.download', $dokumen->id) }}"
+                                        <!-- <a href="{{ route('dokumen.download', $dokumen->id) }}"
                                             class="inline-flex items-center px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-200 text-sm">
                                             <i class="fas fa-download mr-1"></i>
                                             Download
-                                        </a>
+                                        </a> -->
                                         <form action="{{ route('dokumen.destroy', $dokumen->id) }}" method="POST" class="inline">
                                             @csrf
                                             @method('DELETE')
@@ -268,6 +280,16 @@
 <script>
     // File upload handling
     document.addEventListener('DOMContentLoaded', function() {
+        // Disable upload buttons jika sudah bayar
+        const sudahBayar = {{ $sudahBayar ? 'true' : 'false' }};
+        
+        if (sudahBayar) {
+            document.querySelectorAll('.upload-trigger, .file-input').forEach((element) => {
+                element.disabled = true;
+                element.classList.add('opacity-50', 'cursor-not-allowed');
+            });
+        }
+
         // Setup file input triggers - tombol "Upload File" akan membuka file picker
         document.querySelectorAll('.upload-trigger').forEach((trigger) => {
             trigger.addEventListener('click', function() {

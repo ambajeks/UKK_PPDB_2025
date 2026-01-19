@@ -88,6 +88,11 @@ class FormulirPendaftaran extends Model
         return $this->belongsTo(User::class, 'admin_verifikasi_id');
     }
 
+    public function revisi()
+    {
+        return $this->hasMany(RevisiPendaftaran::class, 'formulir_id');
+    }
+
     // Helper methods untuk verifikasi
     public function isTerverifikasi()
     {
@@ -112,5 +117,17 @@ class FormulirPendaftaran extends Model
     public function isSiapDiverifikasi()
     {
         return $this->isSudahBayar() && $this->isMenungguVerifikasi();
+    }
+
+    // Helper untuk cek apakah ada revisi yang menunggu
+    public function hasRevisiMenunggu()
+    {
+        return $this->revisi()->where('status_revisi', 'menunggu')->exists();
+    }
+
+    // Ambil revisi yang paling baru dan masih menunggu
+    public function getRevisiMenunggu()
+    {
+        return $this->revisi()->where('status_revisi', 'menunggu')->latest()->first();
     }
 }

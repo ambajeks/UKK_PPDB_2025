@@ -21,7 +21,8 @@ use App\Http\Controllers\{
     WaliController,
     PembayaranController,
     UserController,
-    AdminDashboardController
+    AdminDashboardController,
+    RevisiController
 };
 
 /*
@@ -98,6 +99,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // ✅ SERVE STORAGE FILES ROUTE
     Route::get('/storage/{path}', [DokumenController::class, 'serve'])->name('storage.serve')->where('path', '.*');
+
+    // Revisi Pendaftaran
+    Route::prefix('revisi')->name('revisi.')->group(function () {
+        Route::get('/', [RevisiController::class, 'show'])->name('show');
+        Route::post('/', [RevisiController::class, 'store'])->name('store');
+    });
 });
 
 // Status Pendaftaran
@@ -139,6 +146,7 @@ Route::middleware(['auth', 'can:admin'])
             Route::get('/{id}', [VerifikasiController::class, 'show'])->name('show');
             Route::post('/{id}/verifikasi', [VerifikasiController::class, 'verifikasi'])->name('approve');
             Route::post('/{id}/tolak', [VerifikasiController::class, 'tolak'])->name('reject');
+            Route::post('/{id}/revisi', [VerifikasiController::class, 'mintaRevisi'])->name('mintaRevisi');
         });
 
         // Resource routes lainnya...
