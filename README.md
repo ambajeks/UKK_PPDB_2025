@@ -125,5 +125,6 @@ Ikuti langkah-langkah berikut untuk menjalankan project ini di local environment
 ## 📝 Catatan Pengembang
 - Pastikan konfigurasi Midtrans di `.env` sudah benar agar fitur pembayaran berjalan lancar.
 - Gunakan `php artisan db:seed` untuk mengisi data awal yang dibutuhkan sistem.
+- https://docs.google.com/document/d/1IKSN47P-jmHXnWhk30oCA8-PAxOMPcuqyWsUVLbcGM0/edit?usp=sharing
 
 "composer require "maatwebsite/excel:3.1.*" --ignore-platform-req=ext-gd"
