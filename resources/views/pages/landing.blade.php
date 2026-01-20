@@ -367,7 +367,7 @@
 
                     @if(auth()->check())
                         <li class="nav-item ms-lg-2">
-                            <a class="btn btn-login" href="{{ auth()->user()->role == 'admin' ? route('admin.dashboard') : route('dashboard') }}">
+                            <a class="btn btn-login" href="{{ auth()->user()->hasRole('admin') ? route('admin.dashboard') : route('dashboard') }}">
                                 <i class="bi bi-person-circle"></i> 
                                 <span class="d-none d-md-inline">{{ auth()->user()->username }}</span>
                             </a>
