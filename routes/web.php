@@ -40,7 +40,7 @@ Route::get('/', [LandingPageController::class, 'index'])->name('landing');
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'can:user'])->group(function () {
 
     // Dashboard user
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -156,10 +156,14 @@ Route::middleware(['auth', 'can:admin'])
         Route::resource('jurusan', JurusanController::class);
         Route::resource('kelas', KelasController::class);
         Route::resource('users', UserController::class);
-
+        
         // Route untuk export laporan
         Route::get('/laporan/export', [AdminDashboardController::class, 'exportLaporan'])
             ->name('laporan.export');
+
+        // Profile admin
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     });
 /*
 |--------------------------------------------------------------------------

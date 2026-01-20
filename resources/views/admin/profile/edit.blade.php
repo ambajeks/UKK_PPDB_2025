@@ -20,7 +20,7 @@
                     Bagian email & no hp tidak bisa diubah.
                 </div>
 
-                <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('admin.profile.update') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PATCH')
 

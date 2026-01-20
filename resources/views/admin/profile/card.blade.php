@@ -30,7 +30,7 @@
     <hr>
 
     <!-- Tombol Edit -->
-    <a href="{{ route('profile.edit') }}" 
+    <a href="{{ route('admin.profile.edit') }}" 
        class="d-flex align-items-center gap-2 p-2 rounded-3 text-decoration-none"
        style="color:#0d6efd; font-weight:500;">
         <i class="bi bi-gear"></i> Edit Profil

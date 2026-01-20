@@ -16,10 +16,6 @@ class ProfileController extends Controller
 {
     public function edit(Request $request): View
     {
-        if (!Gate::allows('admin')) {
-            abort(403, 'Unauthorized');
-        }
-
         return view('admin.profile.edit', [
             'user' => $request->user(),
         ]);
@@ -27,10 +23,6 @@ class ProfileController extends Controller
 
 public function update(ProfileUpdateRequest $request): RedirectResponse
 {
-    if (!Gate::allows('admin')) {
-        abort(403, 'Unauthorized');
-    }
-
     $user = $request->user();
 
     // Update username

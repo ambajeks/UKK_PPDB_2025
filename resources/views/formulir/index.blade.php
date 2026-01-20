@@ -339,43 +339,38 @@
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
             @enderror
         </div>
+
+        <!-- Gelombang Pendaftaran (Otomatis) -->
+        <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+                Gelombang Pendaftaran <span class="text-blue-500">(Otomatis)</span>
+            </label>
+            <div class="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-lg text-gray-700">
+                @if($activeWave)
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                        <div>
+                            <i class="fas fa-calendar-check text-green-500 mr-2"></i>
+                            <strong>{{ $activeWave->nama_gelombang }}</strong>
+                            <span class="text-sm text-gray-500 ml-2">({{ $activeWave->tanggal_mulai }} s/d {{ $activeWave->tanggal_selesai }})</span>
+                        </div>
+                        <div>
+                            @php
+                                $sisaSlot = $activeWave->limit_siswa - $activeWave->formulirs_count;
+                            @endphp
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $sisaSlot < 10 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
+                                <i class="fas fa-users mr-1"></i> Sisa Slot: {{ $sisaSlot }}
+                            </span>
+                        </div>
+                    </div>
+                @else
+                    <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                    <span>Gelombang akan ditentukan otomatis oleh sistem.</span>
+                @endif
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Sistem akan otomatis memilih gelombang yang tersedia untuk Anda.</p>
+        </div>
     </div>
 </div>
-                                <!-- Gelombang Pendaftaran (Otomatis) -->
-
-                            </div>
-                            <div>
-                                <label class="block w-100 mt-4 text-sm font-medium text-gray-700 mb-2">
-                                    Gelombang Pendaftaran <span class="text-blue-500">(Otomatis)</span>
-                                </label>
-                                <div class="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-lg text-gray-700">
-                                    @if($activeWave)
-                                        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
-                                            <div>
-                                                <i class="fas fa-calendar-check text-green-500 mr-2"></i>
-                                                <strong>{{ $activeWave->nama_gelombang }}</strong>
-                                                <span class="text-sm text-gray-500 ml-2">({{ $activeWave->tanggal_mulai }} s/d
-                                                    {{ $activeWave->tanggal_selesai }})</span>
-                                            </div>
-                                            <div>
-                                                @php
-                                                    $sisaSlot = $activeWave->limit_siswa - $activeWave->formulirs_count;
-                                                @endphp
-                                                <span
-                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $sisaSlot < 10 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
-                                                    <i class="fas fa-users mr-1"></i> Sisa Slot: {{ $sisaSlot }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    @else
-                                        <i class="fas fa-info-circle text-blue-500 mr-2"></i>
-                                        <span>Gelombang akan ditentukan otomatis oleh sistem.</span>
-                                    @endif
-                                </div>
-                                <p class="mt-1 text-xs text-gray-500">Sistem akan otomatis memilih gelombang yang tersedia
-                                    untuk Anda.</p>
-                            </div>
-                        </div>
 
                         <!-- Submit Button -->
                         <div
