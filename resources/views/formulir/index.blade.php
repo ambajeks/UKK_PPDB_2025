@@ -383,9 +383,10 @@
                                         <i class="fas fa-redo mr-2"></i>Reset Form
                                     </button> -->
                                 <button type="submit"
-                                    class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 font-medium shadow-lg">
-                                    <i class="fas fa-save mr-2"></i>
-                                    {{ isset($formulir) ? 'Update Formulir' : 'Simpan Formulir' }}
+                                    class="px-8 py-3 {{ $sudahBayar ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700' }} text-white rounded-lg transition duration-200 font-medium shadow-lg"
+                                    {{ $sudahBayar ? 'disabled' : '' }}>
+                                    <i class="fas {{ $sudahBayar ? 'fa-lock' : 'fa-save' }} mr-2"></i>
+                                    {{ $sudahBayar ? 'Formulir Terkunci' : (isset($formulir) ? 'Update Formulir' : 'Simpan Formulir') }}
                                 </button>
                             </div>
                         </div>
@@ -401,8 +402,9 @@
             const sudahBayar = {{ $sudahBayar ? 'true' : 'false' }};
 
             if (sudahBayar) {
-                // Disable semua input, select, textarea
-                const form = document.querySelector('form');
+                // Disable semua input, select, textarea HANYA pada form pendaftaran
+                // Gunakan selector spesifik untuk menghindari disable form logout di sidebar
+                const form = document.querySelector('form[action="{{ route('formulir.store') }}"]');
                 if (form) {
                     const inputs = form.querySelectorAll('input, select, textarea, button[type="submit"]');
                     inputs.forEach(input => {

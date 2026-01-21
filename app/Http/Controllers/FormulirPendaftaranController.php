@@ -21,11 +21,11 @@ class FormulirPendaftaranController extends Controller
         $gelombangs = GelombangPendaftaran::all();
         $jurusan = Jurusan::all();
 
-        // Cek status pembayaran
+        // Cek status pembayaran - jika sudah ada pembayaran (Lunas/Pending/menunggu_verifikasi), form terkunci
         $sudahBayar = false;
         if ($formulir) {
             $pembayaran = \App\Models\Pembayaran::where('formulir_id', $formulir->id)
-                ->where('status', 'Lunas')
+                ->whereIn('status', ['Lunas', 'Pending', 'menunggu_verifikasi'])
                 ->first();
             $sudahBayar = (bool) $pembayaran;
         }
@@ -59,6 +59,25 @@ class FormulirPendaftaranController extends Controller
      */
     public function store(Request $request)
     {
+        // Cek apakah user sudah bayar - jika sudah, tidak boleh update formulir
+        if ($request->formulir_id) {
+            $formulir = FormulirPendaftaran::where('user_id', auth()->id())
+                ->where('id', $request->formulir_id)
+                ->first();
+
+            if ($formulir) {
+                $pembayaran = \App\Models\Pembayaran::where('formulir_id', $formulir->id)
+                    ->whereIn('status', ['Lunas', 'Pending', 'menunggu_verifikasi'])
+                    ->first();
+
+                if ($pembayaran) {
+                    return redirect()->back()
+                        ->with('error', 'Formulir tidak dapat diubah karena Anda sudah melakukan pembayaran.')
+                        ->withInput();
+                }
+            }
+        }
+
         $validated = $request->validate([
             'nama_lengkap' => 'required|string|max:100',
             'nisn' => 'nullable|string|max:20|unique:formulir_pendaftaran,nisn,' . ($request->formulir_id ?? ''),

@@ -8,13 +8,13 @@
         <div class="bg-white rounded-lg shadow-md p-8">
             <h1 class="text-3xl font-bold text-gray-800 mb-8">Verifikasi Data Siswa</h1>
 
-            <!-- Student Information -->
+             <!-- Student Information -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <!-- Photo -->
                 <div class="md:col-span-1">
                     <div class="bg-gray-100 rounded-lg p-4 text-center">
                         @if($fotoSiswa && file_exists(storage_path('app/' . $fotoSiswa->path_file)))
-                        <img src="{{ asset('storage/' . $fotoSiswa->path_file) }}"
+                       <img src="{{ Storage::url ($fotoSiswa->path_file) }}"
                             alt="Foto {{ $formulir->nama_lengkap }}"
                             class="w-full h-auto rounded object-cover">
                         @else
@@ -26,6 +26,8 @@
                         @endif
                     </div>
                 </div>
+
+                
 
                 <!-- Student Details -->
                 <div class="md:col-span-2">
