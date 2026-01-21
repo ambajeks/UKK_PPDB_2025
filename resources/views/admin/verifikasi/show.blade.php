@@ -219,11 +219,11 @@
                 <div class="col-md-8">
                     <form action="{{ route('admin.verifikasi.approve', $calonSiswa->id) }}" method="POST">
                         @csrf
-                        <div class="mb-3">
+                        <!-- <div class="mb-3">
                             <label for="catatan" class="form-label">Catatan Verifikasi (Opsional)</label>
                             <textarea name="catatan" id="catatan" rows="3" class="form-control"
                                 placeholder="Berikan catatan jika diperlukan..."></textarea>
-                        </div>
+                        </div> -->
                         <button type="submit" class="btn btn-success btn-lg w-100">
                             <i class="fas fa-check me-2"></i>Verifikasi & Terima
                         </button>
