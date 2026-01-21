@@ -10,8 +10,15 @@ class KelasController extends Controller
     public function __construct(){ $this->middleware(['auth','can:admin']); }
 
     public function index(){
-        $kelas = Kelas::with('jurusan')->paginate(20);
-        return view('kelas.index',compact('kelas'));
+        $kelas = Kelas::with('jurusan')
+            ->withCount(['siswa' => function($query) {
+                $query->whereNotNull('kelas_id');
+            }])
+            ->paginate(20);
+        
+        $totalSiswaTerassign = \App\Models\FormulirPendaftaran::whereNotNull('kelas_id')->count();
+        
+        return view('admin.kelas.index', compact('kelas', 'totalSiswaTerassign'));
     }
 
     public function create(){
@@ -32,7 +39,8 @@ class KelasController extends Controller
     }
 
     public function show(Kelas $kela){
-        return view('kelas.show',['kelas'=>$kela]);
+        $kela->load(['jurusan', 'siswa']);
+        return view('admin.kelas.show', ['kelas' => $kela]);
     }
 
     public function edit(Kelas $kela){

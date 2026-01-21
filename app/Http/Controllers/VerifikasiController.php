@@ -137,7 +137,7 @@ class VerifikasiController extends Controller
 
     public function riwayat()
     {
-        $calonSiswa = FormulirPendaftaran::with(['user', 'jurusan', 'pembayaran', 'adminVerifikasi'])
+        $calonSiswa = FormulirPendaftaran::with(['user', 'jurusan', 'kelas', 'pembayaran.promo', 'adminVerifikasi'])
             ->whereIn('status_verifikasi', ['diverifikasi', 'ditolak'])
             ->latest('verified_at')
             ->get();

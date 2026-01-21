@@ -13,4 +13,9 @@ class Kelas extends Model
     {
         return $this->belongsTo(Jurusan::class, 'jurusan_id');
     }
+
+    public function siswa()
+    {
+        return $this->hasMany(FormulirPendaftaran::class, 'kelas_id');
+    }
 }

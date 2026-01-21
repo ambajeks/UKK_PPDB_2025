@@ -29,7 +29,7 @@ class GelombangPendaftaranController extends Controller
     {
         $data = $request->validate([
             'nama_gelombang' => 'required|string|max:50',
-            'tanggal_mulai' => 'required|date',
+            'tanggal_mulai' => 'required|date|after_or_equal:today',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'limit_siswa' => 'required|integer|min:0',
             'harga' => 'required|integer',
@@ -55,7 +55,7 @@ class GelombangPendaftaranController extends Controller
     {
         $data = $request->validate([
             'nama_gelombang' => 'required|string|max:50',
-            'tanggal_mulai' => 'required|date',
+            'tanggal_mulai' => 'required|date|after_or_equal:today',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'limit_siswa' => 'required|integer|min:0',
              'harga' => 'required|integer',

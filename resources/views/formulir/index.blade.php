@@ -62,7 +62,28 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('formulir.store') }}" class="space-y-8" {{ $sudahBayar ? 'style=opacity:0.6' : '' }}>
+                    @if(session('error'))
+                        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-exclamation-triangle text-red-500 mr-3"></i>
+                                <span class="text-red-700 font-medium">{{ session('error') }}</span>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($noWaveAvailable ?? false)
+                        <div class="mb-6 p-4 bg-orange-50 border-2 border-orange-300 rounded-lg">
+                            <div class="flex items-start">
+                                <i class="fas fa-calendar-times text-orange-500 mr-3 mt-1 text-xl"></i>
+                                <div>
+                                    <h4 class="text-orange-800 font-bold mb-2">Pendaftaran Tidak Tersedia</h4>
+                                    <p class="text-orange-700 text-sm">{{ $noWaveReason ?? 'Tidak ada gelombang pendaftaran yang tersedia saat ini.' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    <form method="POST" action="{{ route('formulir.store') }}" class="space-y-8" {{ ($sudahBayar || ($noWaveAvailable ?? false)) ? 'style=opacity:0.6' : '' }}>
                         @csrf
 
                         @if(isset($formulir))
@@ -346,26 +367,31 @@
                 Gelombang Pendaftaran <span class="text-blue-500">(Otomatis)</span>
             </label>
             <div class="w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-lg text-gray-700">
-                @if($activeWave)
-                    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
-                        <div>
-                            <i class="fas fa-calendar-check text-green-500 mr-2"></i>
-                            <strong>{{ $activeWave->nama_gelombang }}</strong>
-                            <span class="text-sm text-gray-500 ml-2">({{ $activeWave->tanggal_mulai }} s/d {{ $activeWave->tanggal_selesai }})</span>
-                        </div>
-                        <div>
-                            @php
-                                $sisaSlot = $activeWave->limit_siswa - $activeWave->formulirs_count;
-                            @endphp
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $sisaSlot < 10 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
-                                <i class="fas fa-users mr-1"></i> Sisa Slot: {{ $sisaSlot }}
-                            </span>
-                        </div>
-                    </div>
-                @else
-                    <i class="fas fa-info-circle text-blue-500 mr-2"></i>
-                    <span>Gelombang akan ditentukan otomatis oleh sistem.</span>
-                @endif
+                            @if($activeWave)
+                                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                                    <div>
+                                        <i class="fas fa-calendar-check text-green-500 mr-2"></i>
+                                        <strong>{{ $activeWave->nama_gelombang }}</strong>
+                                        <span class="text-sm text-gray-500 ml-2">({{ $activeWave->tanggal_mulai }} s/d {{ $activeWave->tanggal_selesai }})</span>
+                                    </div>
+                                    <div>
+                                        @php
+                                            $sisaSlot = $activeWave->limit_siswa - $activeWave->formulirs_count;
+                                        @endphp
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $sisaSlot < 10 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
+                                            <i class="fas fa-users mr-1"></i> Sisa Slot: {{ $sisaSlot }}
+                                        </span>
+                                    </div>
+                                </div>
+                            @elseif($noWaveAvailable ?? false)
+                                <div class="flex items-center text-orange-600">
+                                    <i class="fas fa-exclamation-circle mr-2"></i>
+                                    <span class="font-medium">Tidak ada gelombang aktif saat ini</span>
+                                </div>
+                            @else
+                                <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                                <span>Gelombang akan ditentukan otomatis oleh sistem.</span>
+                            @endif
             </div>
             <p class="mt-1 text-xs text-gray-500">Sistem akan otomatis memilih gelombang yang tersedia untuk Anda.</p>
         </div>
@@ -383,10 +409,16 @@
                                         <i class="fas fa-redo mr-2"></i>Reset Form
                                     </button> -->
                                 <button type="submit"
-                                    class="px-8 py-3 {{ $sudahBayar ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700' }} text-white rounded-lg transition duration-200 font-medium shadow-lg"
-                                    {{ $sudahBayar ? 'disabled' : '' }}>
-                                    <i class="fas {{ $sudahBayar ? 'fa-lock' : 'fa-save' }} mr-2"></i>
-                                    {{ $sudahBayar ? 'Formulir Terkunci' : (isset($formulir) ? 'Update Formulir' : 'Simpan Formulir') }}
+                                    class="px-8 py-3 {{ ($sudahBayar || ($noWaveAvailable ?? false)) ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700' }} text-white rounded-lg transition duration-200 font-medium shadow-lg"
+                                    {{ ($sudahBayar || ($noWaveAvailable ?? false)) ? 'disabled' : '' }}>
+                                    <i class="fas {{ $sudahBayar ? 'fa-lock' : (($noWaveAvailable ?? false) ? 'fa-ban' : 'fa-save') }} mr-2"></i>
+                                    @if($sudahBayar)
+                                        Formulir Terkunci
+                                    @elseif($noWaveAvailable ?? false)
+                                        Pendaftaran Tidak Tersedia
+                                    @else
+                                        {{ isset($formulir) ? 'Update Formulir' : 'Simpan Formulir' }}
+                                    @endif
                                 </button>
                             </div>
                         </div>

@@ -24,10 +24,12 @@
                                     <th>No. Pendaftaran</th>
                                     <th>Nama Calon Siswa</th>
                                     <th>Jurusan</th>
+                                    <th>Kelas</th>
+                                    <th>Promo</th>
+                                    <th>Kode Transaksi</th>
                                     <th>Status Verifikasi</th>
                                     <th>Admin Verifikasi</th>
                                     <th>Tanggal Verifikasi</th>
-                                    <th>Catatan</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -36,6 +38,31 @@
                                         <td>{{ $siswa->nomor_pendaftaran ?? '-' }}</td>
                                         <td>{{ $siswa->nama_lengkap }}</td>
                                         <td>{{ $siswa->jurusan->nama ?? '-' }}</td>
+                                        <td>
+                                            @if($siswa->kelas)
+                                                <span class="badge bg-primary">
+                                                    <i class="fas fa-graduation-cap me-1"></i>{{ $siswa->kelas->nama_kelas }}
+                                                </span>
+                                            @else
+                                                <span class="badge bg-secondary">Belum assign</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($siswa->pembayaran && $siswa->pembayaran->promo)
+                                                <span class="badge bg-info">
+                                                    <i class="fas fa-tag me-1"></i>{{ $siswa->pembayaran->promo->kode_promo }}
+                                                </span>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($siswa->pembayaran && $siswa->pembayaran->kode_transaksi)
+                                                <code class="text-primary">{{ $siswa->pembayaran->kode_transaksi }}</code>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
                                         <td>
                                             @if($siswa->status_verifikasi === 'diverifikasi')
                                                 <span class="badge bg-success">
@@ -49,7 +76,6 @@
                                         </td>
                                         <td>{{ $siswa->adminVerifikasi->username ?? '-' }}</td>
                                         <td>{{ $siswa->verified_at?->format('d/m/Y H:i') ?? '-' }}</td>
-                                        <td>{{ \Illuminate\Support\Str::limit($siswa->catatan_verifikasi, 50) }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

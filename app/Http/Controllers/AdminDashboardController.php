@@ -45,7 +45,7 @@ class AdminDashboardController extends Controller
             ->get();
 
         // TABEL PENDAFTAR BARU
-        $pendaftar_baru = FormulirPendaftaran::with(['user', 'jurusan', 'gelombang'])
+        $pendaftar_baru = FormulirPendaftaran::with(['user', 'jurusan', 'kelas', 'gelombang', 'pembayaran.promo'])
             ->where('status_verifikasi', 'diverifikasi')
             ->latest()
             ->take(5)

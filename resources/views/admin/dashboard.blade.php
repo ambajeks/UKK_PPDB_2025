@@ -209,7 +209,10 @@
                                 <th>No. Pendaftaran</th>
                                 <th>Nama Lengkap</th>
                                 <th>Jurusan</th>
+                                <th>Kelas</th>
                                 <th>Gelombang</th>
+                                <th>Promo</th>
+                                <th>Kode Transaksi</th>
                                 <th>Tanggal Daftar</th>
                                 <th>Status</th>
                             </tr>
@@ -220,7 +223,32 @@
                                     <td>{{ $p->nomor_pendaftaran ?? 'Belum ada' }}</td>
                                     <td>{{ $p->nama_lengkap ?? $p->user->username ?? '-' }}</td>
                                     <td>{{ $p->jurusan->nama ?? '-' }}</td>
+                                    <td>
+                                        @if($p->kelas)
+                                            <span class="badge bg-primary">
+                                                <i class="fas fa-graduation-cap me-1"></i>{{ $p->kelas->nama_kelas }}
+                                            </span>
+                                        @else
+                                            <span class="badge bg-secondary">Belum assign</span>
+                                        @endif
+                                    </td>
                                     <td>{{ $p->gelombang->nama_gelombang ?? '-' }}</td>
+                                    <td>
+                                        @if($p->pembayaran && $p->pembayaran->promo)
+                                            <span class="badge bg-info">
+                                                <i class="fas fa-tag me-1"></i>{{ $p->pembayaran->promo->kode_promo }}
+                                            </span>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($p->pembayaran && $p->pembayaran->kode_transaksi)
+                                            <code class="text-primary">{{ $p->pembayaran->kode_transaksi }}</code>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
                                     <td>{{ $p->created_at->format('d-m-Y H:i') }}</td>
                                     <td>
                                         <span class="badge bg-success">Terverifikasi</span>

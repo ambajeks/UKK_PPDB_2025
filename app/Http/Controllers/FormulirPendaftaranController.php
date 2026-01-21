@@ -37,7 +37,10 @@ class FormulirPendaftaranController extends Controller
         }
 
         // Logika Penentuan Gelombang Otomatis (untuk display)
+        // Patokan 1: Waktu (tanggal_mulai <= sekarang AND tanggal_selesai >= sekarang)
+        // Patokan 2: Limit (limit_siswa > jumlah pendaftar)
         $activeWave = GelombangPendaftaran::whereDate('tanggal_mulai', '<=', now())
+            ->whereDate('tanggal_selesai', '>=', now())
             ->withCount('formulirs')
             ->get()
             ->filter(function ($wave) {
@@ -46,12 +49,44 @@ class FormulirPendaftaranController extends Controller
             ->sortBy('tanggal_mulai')
             ->first();
 
-        // Jika tidak ada yang aktif, ambil yang terakhir (untuk display estimasi)
-        if (!$activeWave) {
-            $activeWave = GelombangPendaftaran::latest()->first();
+        // Flag untuk menampilkan pesan jika tidak ada gelombang yang tersedia
+        $noWaveAvailable = !$activeWave;
+        $noWaveReason = null;
+        
+        if ($noWaveAvailable) {
+            // Cek alasan: apakah karena waktu atau karena limit
+            $expiredWave = GelombangPendaftaran::whereDate('tanggal_selesai', '<', now())
+                ->latest('tanggal_selesai')
+                ->first();
+            
+            $fullWave = GelombangPendaftaran::whereDate('tanggal_mulai', '<=', now())
+                ->whereDate('tanggal_selesai', '>=', now())
+                ->withCount('formulirs')
+                ->get()
+                ->filter(function ($wave) {
+                    return $wave->limit_siswa <= $wave->formulirs_count;
+                })
+                ->first();
+            
+            $futureWave = GelombangPendaftaran::whereDate('tanggal_mulai', '>', now())
+                ->orderBy('tanggal_mulai')
+                ->first();
+            
+            if ($fullWave) {
+                $noWaveReason = 'Gelombang saat ini sudah mencapai batas kuota. Silakan tunggu gelombang berikutnya.';
+                if ($futureWave) {
+                    $noWaveReason .= ' Gelombang berikutnya: ' . $futureWave->nama_gelombang . ' (mulai ' . $futureWave->tanggal_mulai . ')';
+                }
+            } elseif ($expiredWave && !$futureWave) {
+                $noWaveReason = 'Periode pendaftaran untuk semua gelombang sudah berakhir.';
+            } elseif ($futureWave) {
+                $noWaveReason = 'Belum ada gelombang yang dibuka. Gelombang berikutnya: ' . $futureWave->nama_gelombang . ' (mulai ' . $futureWave->tanggal_mulai . ')';
+            } else {
+                $noWaveReason = 'Tidak ada gelombang pendaftaran yang tersedia saat ini. Silakan hubungi admin.';
+            }
         }
 
-        return view('formulir.index', compact('formulir', 'gelombangs', 'jurusan', 'activeWave', 'sudahBayar', 'revisiMenunggu'));
+        return view('formulir.index', compact('formulir', 'gelombangs', 'jurusan', 'activeWave', 'sudahBayar', 'revisiMenunggu', 'noWaveAvailable', 'noWaveReason'));
     }
 
     /**
@@ -99,7 +134,10 @@ class FormulirPendaftaranController extends Controller
         ]);
 
         // Logika Penentuan Gelombang Otomatis
+        // Patokan 1: Waktu (tanggal_mulai <= sekarang AND tanggal_selesai >= sekarang)
+        // Patokan 2: Limit (limit_siswa > jumlah pendaftar)
         $activeWave = GelombangPendaftaran::whereDate('tanggal_mulai', '<=', now())
+            ->whereDate('tanggal_selesai', '>=', now())
             ->withCount('formulirs')
             ->get()
             ->filter(function ($wave) {
@@ -108,38 +146,38 @@ class FormulirPendaftaranController extends Controller
             ->sortBy('tanggal_mulai')
             ->first();
 
-        if ($activeWave) {
-            $validated['gelombang_id'] = $activeWave->id;
-        } else {
-            // Jika tidak ada gelombang aktif/tersedia, buat baru
-            $lastWave = GelombangPendaftaran::latest()->first();
-
-            // Tentukan nama gelombang baru
-            $newWaveName = 'Gelombang 1';
-            $newPrice = 1000000; // Default price
-
-            if ($lastWave) {
-                // Coba ambil angka dari nama gelombang terakhir
-                if (preg_match('/(\d+)$/', $lastWave->nama_gelombang, $matches)) {
-                    $nextNum = intval($matches[1]) + 1;
-                    $newWaveName = 'Gelombang ' . $nextNum;
-                } else {
-                    $newWaveName = $lastWave->nama_gelombang . ' (Lanjutan)';
+        if (!$activeWave) {
+            // Cek alasan mengapa tidak ada gelombang
+            $fullWave = GelombangPendaftaran::whereDate('tanggal_mulai', '<=', now())
+                ->whereDate('tanggal_selesai', '>=', now())
+                ->withCount('formulirs')
+                ->get()
+                ->filter(function ($wave) {
+                    return $wave->limit_siswa <= $wave->formulirs_count;
+                })
+                ->first();
+            
+            $futureWave = GelombangPendaftaran::whereDate('tanggal_mulai', '>', now())
+                ->orderBy('tanggal_mulai')
+                ->first();
+            
+            if ($fullWave) {
+                $errorMsg = 'Pendaftaran tidak dapat dilakukan. Gelombang saat ini sudah mencapai batas kuota.';
+                if ($futureWave) {
+                    $errorMsg .= ' Gelombang berikutnya: ' . $futureWave->nama_gelombang . ' (mulai ' . $futureWave->tanggal_mulai . ')';
                 }
-                $newPrice = $lastWave->harga;
+            } elseif ($futureWave) {
+                $errorMsg = 'Belum ada gelombang yang dibuka. Gelombang berikutnya: ' . $futureWave->nama_gelombang . ' (mulai ' . $futureWave->tanggal_mulai . ')';
+            } else {
+                $errorMsg = 'Tidak ada gelombang pendaftaran yang tersedia saat ini. Silakan hubungi admin.';
             }
-
-            $newWave = GelombangPendaftaran::create([
-                'nama_gelombang' => $newWaveName,
-                'tanggal_mulai' => now(),
-                'tanggal_selesai' => now()->addMonth(), // Default 1 bulan
-                'limit_siswa' => 250, // Default kapasitas baru
-                'harga' => $newPrice,
-                'catatan' => 'Gelombang otomatis dibuat oleh sistem karena slot sebelumnya penuh.'
-            ]);
-
-            $validated['gelombang_id'] = $newWave->id;
+            
+            return redirect()->back()
+                ->with('error', $errorMsg)
+                ->withInput();
         }
+
+        $validated['gelombang_id'] = $activeWave->id;
 
 
 

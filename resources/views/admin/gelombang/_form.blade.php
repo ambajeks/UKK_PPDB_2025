@@ -7,11 +7,17 @@
 <div class="row">
   <div class="col-md-4 mb-3">
     <label class="form-label">Tanggal Mulai</label>
-    <input type="date" name="tanggal_mulai" class="form-control" value="{{ old('tanggal_mulai', $gelombang->tanggal_mulai ?? '') }}" required>
+    <input type="date" name="tanggal_mulai" class="form-control" 
+           value="{{ old('tanggal_mulai', $gelombang->tanggal_mulai ?? '') }}" 
+           min="{{ date('Y-m-d') }}" required>
+    <small class="text-muted">Minimal tanggal hari ini</small>
   </div>
   <div class="col-md-4 mb-3">
     <label class="form-label">Tanggal Selesai</label>
-    <input type="date" name="tanggal_selesai" class="form-control" value="{{ old('tanggal_selesai', $gelombang->tanggal_selesai ?? '') }}" required>
+    <input type="date" name="tanggal_selesai" class="form-control" 
+           value="{{ old('tanggal_selesai', $gelombang->tanggal_selesai ?? '') }}" 
+           min="{{ date('Y-m-d') }}" required>
+    <small class="text-muted">Minimal tanggal hari ini</small>
   </div>
   <div class="col-md-4 mb-3">
     <label class="form-label">Limit Siswa</label>
