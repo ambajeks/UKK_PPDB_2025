@@ -292,7 +292,7 @@
             <td class="header-qr">
                 @if(isset($qrCodeImage) && !empty($qrCodeImage))
                 <img src="{{ $qrCodeImage }}" alt="QR Code">
-                <div class="qr-label">Scan untuk verifikasi</div>
+                <!-- <div class="qr-label">Scan untuk verifikasi</div> -->
                 @else
                 <div style="width: 65px; height: 65px; background: #f5f5f5; border: 1px solid #ddd;"></div>
                 @endif
@@ -374,6 +374,12 @@
                             {{ $formulir->pembayaran->tanggal_bayar?->format('d F Y') ?? '-' }}
                         </td>
                     </tr>
+                    <tr>
+                        <td class="label">Nama Admin yang memverifikasi</td>
+                        <td class="value">
+                            {{ $formulir->adminVerifikasi->username ?? '-' }}
+                        </td>
+                    </tr>
                 </table>
             </td>
         </tr>
@@ -418,8 +424,10 @@
     <div class="info-box">
         <strong>Catatan Penting:</strong><br>
         1. Simpan bukti pendaftaran ini dengan baik sebagai tanda bukti yang sah.<br>
-        2. Scan QR Code untuk verifikasi keaslian dokumen melalui website resmi sekolah.<br>
-        3. Dokumen ini berlaku sebagai bukti telah terdaftar sebagai calon siswa baru.
+        2. Scan QR Code dan Dokumen ini berlaku sebagai bukti telah terdaftar sebagai calon siswa baru.<br>
+        3. Setelah mencetak PDF bukti pendaftaran, silakan bawa ke sekolah untuk:<br>
+        - Pengambilan seragam<br>
+        - Informasi jadwal
     </div>
 
     <!-- Signature -->

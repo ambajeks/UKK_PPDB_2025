@@ -408,7 +408,7 @@
                 <!-- GELOMBANG -->
                 <div class="col-md-5">
                     <div class="card shadow-sm p-4 h-100">
-                        <h4 class="fw-bold text-primary text-center">Gelombang Aktif</h4>
+                        <h4 class="fw-bold text-primary text-center">Gelombang </h4>
 
                         @if($gelombang)
                         @foreach ($gelombang as $g)

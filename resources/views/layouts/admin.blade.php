@@ -88,6 +88,21 @@
                     </a>
                 </li>
 
+                <!-- MENU SERAGAM -->
+                <li class="nav-item">
+                    <a href="{{ route('admin.seragam.index') }}"
+                       class="nav-link {{ request()->routeIs('admin.seragam.*') ? 'active' : '' }} position-relative">
+                       <i class="fas fa-tshirt me-1"></i>Seragam
+                       @php
+                           $jumlahBelumAmbil = \App\Models\FormulirPendaftaran::where('status_verifikasi', 'diverifikasi')
+                               ->where('status_pengambilan_seragam', 'belum')->count();
+                       @endphp
+                       @if($jumlahBelumAmbil > 0)
+                           <span class="badge bg-warning badge-notif">{{ $jumlahBelumAmbil }}</span>
+                       @endif
+                    </a>
+                </li>
+
                 <li class="nav-item">
                     <a href="{{ route('admin.jurusan.index') }}"
                        class="nav-link {{ request()->routeIs('admin.jurusan.*') ? 'active' : '' }}">

@@ -248,7 +248,7 @@
                 </div>
                 <div class="card-body">
                     <div class="row align-items-center">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label text-muted small mb-1">Status</label>
                                 <div>
@@ -266,11 +266,26 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label text-muted small mb-1">Total Biaya</label>
                                 <div class="fw-bold fs-5 text-success">
                                     Rp {{ number_format($formulir->pembayaran->jumlah_akhir, 0, ',', '.') }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label text-muted small mb-1">Admin yang Memverifikasi</label>
+                                <div>
+                                    @if($formulir->adminVerifikasi)
+                                        <span class="badge bg-primary fs-6 p-2">
+                                            <i class="fas fa-user-shield me-1"></i>
+                                            {{ $formulir->adminVerifikasi->username }}
+                                        </span>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
                                 </div>
                             </div>
                         </div>

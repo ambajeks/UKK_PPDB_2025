@@ -35,12 +35,16 @@ class FormulirPendaftaran extends Model
         'status_verifikasi',
         'catatan_verifikasi',
         'admin_verifikasi_id',
-        'verified_at'
+        'verified_at',
+        'status_pengambilan_seragam',
+        'tanggal_pengambilan_seragam',
+        'admin_pengambilan_id'
     ];
 
     protected $casts = [
         'tanggal_lahir' => 'date',
         'verified_at' => 'datetime',
+        'tanggal_pengambilan_seragam' => 'datetime',
     ];
 
     public function user()
@@ -129,5 +133,17 @@ class FormulirPendaftaran extends Model
     public function getRevisiMenunggu()
     {
         return $this->revisi()->where('status_revisi', 'menunggu')->latest()->first();
+    }
+
+    // Relasi untuk admin yang memproses pengambilan seragam
+    public function adminPengambilan()
+    {
+        return $this->belongsTo(User::class, 'admin_pengambilan_id');
+    }
+
+    // Helper method untuk cek status pengambilan seragam
+    public function isSudahAmbilSeragam()
+    {
+        return $this->status_pengambilan_seragam === 'sudah';
     }
 }

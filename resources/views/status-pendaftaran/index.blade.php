@@ -143,7 +143,7 @@
                         <i class="fas fa-info-circle mr-2"></i>
                         Setelah mencetak PDF bukti pendaftaran, silakan bawa ke sekolah untuk:
                         <br>- Pengambilan seragam
-                        <br>- Informasi kelas dan jadwal
+                        <br>- Informasi jadwal
                     </p>
                 </div>
             </div>

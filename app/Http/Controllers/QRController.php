@@ -83,8 +83,9 @@ class QRController extends Controller
                 'jurusan',
                 'gelombang',
                 'kelas',
-                'pembayaran',
-                'user'
+                'pembayaran.promo',
+                'user',
+                'adminVerifikasi'
             ])->findOrFail($id);
 
             // Verify nomor pendaftaran matches

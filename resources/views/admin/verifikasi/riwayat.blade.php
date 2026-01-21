@@ -12,9 +12,40 @@
         </div>
 
         <div class="card shadow-sm border-0">
-            <div class="card-header bg-secondary text-white">
-                <i class="fas fa-history me-2"></i>Riwayat Verifikasi Calon Siswa
+            <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-history me-2"></i>Riwayat Verifikasi Calon Siswa</span>
             </div>
+            
+            <!-- Search Form -->
+            <div class="card-body border-bottom pb-3">
+                <form method="GET" action="{{ route('admin.verifikasi.riwayat') }}">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-8">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" name="search" class="form-control" 
+                                       placeholder="Cari: promo, normal, nama, kode transaksi, gelombang, jurusan, no pendaftaran..." 
+                                       value="{{ $search ?? '' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-primary me-2" type="submit">
+                                <i class="fas fa-search me-1"></i>Cari
+                            </button>
+                            @if($search ?? false)
+                                <a href="{{ route('admin.verifikasi.riwayat') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-1"></i>Reset
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                    <small class="text-muted mt-2 d-block">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Ketik <strong>"promo"</strong> untuk siswa yang pakai promo, <strong>"normal"</strong> untuk siswa tanpa promo
+                    </small>
+                </form>
+            </div>
+
             <div class="card-body p-0">
                 @if($calonSiswa->count() > 0)
                     <div class="table-responsive">

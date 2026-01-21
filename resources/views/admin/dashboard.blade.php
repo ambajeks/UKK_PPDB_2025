@@ -196,10 +196,13 @@
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
             <span>Calon Peserta Didik Baru (Terverifikasi)</span>
-            <button class="btn btn-sm btn-outline-light" onclick="location.href='{{ route('admin.verifikasi.index') }}'">
+            <a href="{{ route('admin.verifikasi.riwayat') }}" class="btn btn-sm btn-outline-light">
                 Lihat Semua →
-            </button>
+            </a>
         </div>
+        
+
+
         <div class="card-body p-0">
             @if($pendaftar_baru->count() > 0)
                 <div class="table-responsive">

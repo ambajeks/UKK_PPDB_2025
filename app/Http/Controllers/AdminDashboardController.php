@@ -8,6 +8,7 @@ use App\Models\Promo;
 use App\Models\Pembayaran;
 use App\Models\FormulirPendaftaran;
 use App\Models\GelombangPendaftaran;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\LaporanPendaftaranExport;
@@ -15,7 +16,7 @@ use Carbon\Carbon;
 
 class AdminDashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         // STATISTIK DASAR
         $total_pendaftar = FormulirPendaftaran::where('status_verifikasi', 'diverifikasi')->count();
@@ -44,12 +45,54 @@ class AdminDashboardController extends Controller
             ->take(5)
             ->get();
 
-        // TABEL PENDAFTAR BARU
-        $pendaftar_baru = FormulirPendaftaran::with(['user', 'jurusan', 'kelas', 'gelombang', 'pembayaran.promo'])
-            ->where('status_verifikasi', 'diverifikasi')
-            ->latest()
-            ->take(5)
-            ->get();
+        // TABEL PENDAFTAR BARU dengan filter search
+        $search = $request->input('search');
+        
+        $queryPendaftar = FormulirPendaftaran::with(['user', 'jurusan', 'kelas', 'gelombang', 'pembayaran.promo'])
+            ->where('status_verifikasi', 'diverifikasi');
+
+        // Filter berdasarkan search keyword
+        if ($search) {
+            $searchLower = strtolower(trim($search));
+            
+            if ($searchLower === 'promo') {
+                // Filter siswa yang menggunakan promo
+                $queryPendaftar->whereHas('pembayaran', function ($q) {
+                    $q->whereNotNull('promo_voucher_id');
+                });
+            } elseif ($searchLower === 'normal') {
+                // Filter siswa yang tidak menggunakan promo
+                $queryPendaftar->whereHas('pembayaran', function ($q) {
+                    $q->whereNull('promo_voucher_id');
+                });
+            } else {
+                // Filter berdasarkan field lainnya
+                $queryPendaftar->where(function ($q) use ($search) {
+                    $q->where('nama_lengkap', 'like', "%{$search}%")
+                      ->orWhere('nomor_pendaftaran', 'like', "%{$search}%")
+                      ->orWhere('created_at', 'like', "%{$search}%")
+                      ->orWhereHas('gelombang', function ($subQ) use ($search) {
+                          $subQ->where('nama_gelombang', 'like', "%{$search}%");
+                      })
+                      ->orWhereHas('jurusan', function ($subQ) use ($search) {
+                          $subQ->where('nama', 'like', "%{$search}%");
+                      })
+                      ->orWhereHas('pembayaran', function ($subQ) use ($search) {
+                          $subQ->where('kode_transaksi', 'like', "%{$search}%");
+                      })
+                      ->orWhereHas('kelas', function ($subQ) use ($search) {
+                          $subQ->where('nama_kelas', 'like', "%{$search}%");
+                      });
+                });
+            }
+        }
+
+        // Jika ada search, tampilkan semua hasil. Jika tidak, batasi 5
+        if ($search) {
+            $pendaftar_baru = $queryPendaftar->latest()->get();
+        } else {
+            $pendaftar_baru = $queryPendaftar->latest()->take(5)->get();
+        }
 
         // SLOT GELOMBANG
         $gelombangInfo = [];
@@ -136,7 +179,8 @@ class AdminDashboardController extends Controller
             'chartLabelsPendaftar',
             'chartDataPendaftar',
             'chartLabelsIncome',
-            'chartDataIncome'
+            'chartDataIncome',
+            'search'
         ));
     }
 

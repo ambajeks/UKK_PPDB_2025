@@ -22,7 +22,8 @@ use App\Http\Controllers\{
     PembayaranController,
     UserController,
     AdminDashboardController,
-    RevisiController
+    RevisiController,
+    SeragamController
 };
 
 /*
@@ -148,6 +149,13 @@ Route::middleware(['auth', 'can:admin'])
             Route::post('/{id}/verifikasi', [VerifikasiController::class, 'verifikasi'])->name('approve');
             Route::post('/{id}/tolak', [VerifikasiController::class, 'tolak'])->name('reject');
             Route::post('/{id}/revisi', [VerifikasiController::class, 'mintaRevisi'])->name('mintaRevisi');
+        });
+
+        // Routes seragam & atribut
+        Route::prefix('seragam')->name('seragam.')->group(function () {
+            Route::get('/', [SeragamController::class, 'index'])->name('index');
+            Route::post('/{id}/ambil', [SeragamController::class, 'ambil'])->name('ambil');
+            Route::get('/riwayat', [SeragamController::class, 'riwayat'])->name('riwayat');
         });
 
         // Resource routes lainnya...

@@ -135,15 +135,55 @@ class VerifikasiController extends Controller
             ->with('success', 'Revisi berhasil diminta. Menunggu calon siswa melakukan perubahan.');
     }
 
-    public function riwayat()
+    public function riwayat(Request $request)
     {
-        $calonSiswa = FormulirPendaftaran::with(['user', 'jurusan', 'kelas', 'pembayaran.promo', 'adminVerifikasi'])
-            ->whereIn('status_verifikasi', ['diverifikasi', 'ditolak'])
-            ->latest('verified_at')
-            ->get();
+        $search = $request->input('search');
+        
+        $query = FormulirPendaftaran::with(['user', 'jurusan', 'kelas', 'gelombang', 'pembayaran.promo', 'adminVerifikasi'])
+            ->whereIn('status_verifikasi', ['diverifikasi', 'ditolak']);
 
-        // dd($calonSiswa);
+        // Filter berdasarkan search keyword
+        if ($search) {
+            $searchLower = strtolower(trim($search));
+            
+            if ($searchLower === 'promo') {
+                // Filter siswa yang menggunakan promo
+                $query->whereHas('pembayaran', function ($q) {
+                    $q->whereNotNull('promo_voucher_id');
+                });
+            } elseif ($searchLower === 'normal') {
+                // Filter siswa yang tidak menggunakan promo
+                $query->whereHas('pembayaran', function ($q) {
+                    $q->whereNull('promo_voucher_id');
+                });
+            } else {
+                // Filter berdasarkan field lainnya
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_lengkap', 'like', "%{$search}%")
+                      ->orWhere('nomor_pendaftaran', 'like', "%{$search}%")
+                      ->orWhere('created_at', 'like', "%{$search}%")
+                      ->orWhere('status_verifikasi', 'like', "%{$search}%")
+                      ->orWhereHas('gelombang', function ($subQ) use ($search) {
+                          $subQ->where('nama_gelombang', 'like', "%{$search}%");
+                      })
+                      ->orWhereHas('jurusan', function ($subQ) use ($search) {
+                          $subQ->where('nama', 'like', "%{$search}%");
+                      })
+                      ->orWhereHas('pembayaran', function ($subQ) use ($search) {
+                          $subQ->where('kode_transaksi', 'like', "%{$search}%");
+                      })
+                      ->orWhereHas('kelas', function ($subQ) use ($search) {
+                          $subQ->where('nama_kelas', 'like', "%{$search}%");
+                      })
+                      ->orWhereHas('adminVerifikasi', function ($subQ) use ($search) {
+                          $subQ->where('username', 'like', "%{$search}%");
+                      });
+                });
+            }
+        }
 
-        return view('admin.verifikasi.riwayat', compact('calonSiswa'));
+        $calonSiswa = $query->latest('verified_at')->get();
+
+        return view('admin.verifikasi.riwayat', compact('calonSiswa', 'search'));
     }
 }

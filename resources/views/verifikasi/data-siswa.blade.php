@@ -6,15 +6,15 @@
 <div class="min-h-screen bg-gray-50 py-8">
     <div class="max-w-4xl mx-auto">
         <div class="bg-white rounded-lg shadow-md p-8">
-            <h1 class="text-3xl font-bold text-gray-800 mb-8">Verifikasi Data Siswa</h1>
+            <h1 class="text-3xl font-bold text-gray-800 mb-8">Bukti Data Siswa PPDB</h1>
 
              <!-- Student Information -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <!-- Photo -->
                 <div class="md:col-span-1">
                     <div class="bg-gray-100 rounded-lg p-4 text-center">
-                        @if($fotoSiswa && file_exists(storage_path('app/' . $fotoSiswa->path_file)))
-                       <img src="{{ Storage::url ($fotoSiswa->path_file) }}"
+                        @if($fotoSiswa && \Storage::disk('public')->exists(str_replace('public/', '', $fotoSiswa->path_file)))
+                       <img src="{{ asset('storage/' . str_replace('public/', '', $fotoSiswa->path_file)) }}"
                             alt="Foto {{ $formulir->nama_lengkap }}"
                             class="w-full h-auto rounded object-cover">
                         @else
@@ -101,6 +101,41 @@
                     </div>
 
                     <div>
+                        <label class="text-sm font-semibold text-gray-600">Kode Transaksi</label>
+                        <p class="text-gray-800">
+                            @if($formulir->pembayaran && $formulir->pembayaran->kode_transaksi)
+                                <code class="bg-gray-100 px-2 py-1 rounded text-blue-600">{{ $formulir->pembayaran->kode_transaksi }}</code>
+                            @else
+                                <span class="text-gray-500">-</span>
+                            @endif
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="text-sm font-semibold text-gray-600">Promo</label>
+                        <p class="text-gray-800">
+                            @if($formulir->pembayaran && $formulir->pembayaran->promo)
+                                <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800">
+                                    {{ $formulir->pembayaran->promo->kode_promo }}
+                                </span>
+                            @else
+                                <span class="text-gray-500">-</span>
+                            @endif
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="text-sm font-semibold text-gray-600">Total Biaya</label>
+                        <p class="text-gray-800">
+                            @if($formulir->pembayaran && $formulir->pembayaran->jumlah_akhir)
+                                <span class="font-bold text-green-600">Rp {{ number_format($formulir->pembayaran->jumlah_akhir, 0, ',', '.') }}</span>
+                            @else
+                                <span class="text-gray-500">-</span>
+                            @endif
+                        </p>
+                    </div>
+
+                    <div>
                         <label class="text-sm font-semibold text-gray-600">Tanggal Pendaftaran</label>
                         <p class="text-gray-800">{{ $formulir->created_at->format('d/m/Y H:i') }}</p>
                     </div>
@@ -122,6 +157,19 @@
                             ">
                                 {{ ucfirst($statusVerif) }}
                             </span>
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="text-sm font-semibold text-gray-600">Nama Admin yang memverifikasi</label>
+                        <p class="text-gray-800">
+                            @if($formulir->adminVerifikasi)
+                                <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-purple-100 text-purple-800">
+                                    {{ $formulir->adminVerifikasi->username }}
+                                </span>
+                            @else
+                                <span class="text-gray-500">-</span>
+                            @endif
                         </p>
                     </div>
                 </div>
