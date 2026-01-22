@@ -22,6 +22,10 @@ class RegisteredUserController extends Controller
             'email'    => 'required|string|email|max:255|unique:users',
             'no_hp'    => 'required|string|max:20',
             'password' => 'required|confirmed|min:6',
+            'g-recaptcha-response' => 'required|captcha',
+        ], [
+            'g-recaptcha-response.required' => 'Silakan verifikasi bahwa Anda bukan robot.',
+            'g-recaptcha-response.captcha' => 'Verifikasi CAPTCHA gagal. Silakan coba lagi.',
         ]);
 
         // SIMPAN USER
@@ -29,7 +33,7 @@ class RegisteredUserController extends Controller
             'username' => $request->username,
             'email'    => $request->email,
             'no_hp'    => $request->no_hp,
-            'password' => Hash::make($request->password),  // FIX UTAMA
+            'password' => Hash::make($request->password),
         ]);
 
         // OPTIONAL jika kamu pakai roles
@@ -39,7 +43,6 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        // FIX REDIRECT
         return redirect()->route('dashboard')
             ->with('success', 'Akun berhasil dibuat!');
     }

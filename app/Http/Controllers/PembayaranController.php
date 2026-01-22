@@ -547,31 +547,14 @@ class PembayaranController extends Controller
             ->orderBy('nama_kelas', 'asc')
             ->first();
 
-        if ($kelas) { // Jika ada kelas yang tersedia
+        if ($kelas) {
             // Assign kelas ke formulir
             $formulir->update(['kelas_id' => $kelas->id]);
 
             // Kurangi kapasitas kelas
             $kelas->decrement('kapasitas');
-        } else {
-            // Jika semua kelas penuh, buat kelas baru
-            $jurusan = $formulir->jurusan;
-
-            // Hitung jumlah kelas yang sudah ada untuk jurusan ini
-            $countKelas = \App\Models\Kelas::where('jurusan_id', $formulir->jurusan_id)->count();
-            $nextNumber = $countKelas + 1;
-
-            // Buat kelas baru
-            $newKelas = \App\Models\Kelas::create([
-                'jurusan_id' => $formulir->jurusan_id,
-                'nama_kelas' => 'X ' . $jurusan->kode_jurusan . ' ' . $nextNumber, // Format: X RPL 4
-                'tipe_kelas' => 'Reguler', // Default
-                'kapasitas' => 19, // 20 - 1 (siswa ini)
-                'tahun_ajaran' => date('Y'),
-            ]);
-
-            // Assign siswa ke kelas baru
-            $formulir->update(['kelas_id' => $newKelas->id]);
         }
+        // Jika tidak ada kelas yang tersedia, siswa tidak di-assign ke kelas manapun
+        // Karena validasi sudah dilakukan di FormulirPendaftaranController saat submit form
     }
 }

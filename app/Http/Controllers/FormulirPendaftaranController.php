@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\FormulirPendaftaran;
 use App\Models\GelombangPendaftaran;
 use App\Models\Jurusan;
+use App\Models\Kelas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -20,6 +21,19 @@ class FormulirPendaftaranController extends Controller
 
         $gelombangs = GelombangPendaftaran::all();
         $jurusan = Jurusan::all();
+
+        // Hitung slot tersedia untuk setiap jurusan
+        $jurusanSlots = [];
+        foreach ($jurusan as $j) {
+            // Total kapasitas dari semua kelas jurusan ini
+            $totalKapasitas = Kelas::where('jurusan_id', $j->id)->sum('kapasitas');
+            $jurusanSlots[$j->id] = [
+                'nama' => $j->nama,
+                'kode' => $j->kode_jurusan,
+                'tersedia' => $totalKapasitas,
+                'penuh' => $totalKapasitas <= 0
+            ];
+        }
 
         // Cek status pembayaran - jika sudah ada pembayaran (Lunas/Pending/menunggu_verifikasi), form terkunci
         $sudahBayar = false;
@@ -86,7 +100,7 @@ class FormulirPendaftaranController extends Controller
             }
         }
 
-        return view('formulir.index', compact('formulir', 'gelombangs', 'jurusan', 'activeWave', 'sudahBayar', 'revisiMenunggu', 'noWaveAvailable', 'noWaveReason'));
+        return view('formulir.index', compact('formulir', 'gelombangs', 'jurusan', 'jurusanSlots', 'activeWave', 'sudahBayar', 'revisiMenunggu', 'noWaveAvailable', 'noWaveReason'));
     }
 
     /**
@@ -128,10 +142,18 @@ class FormulirPendaftaranController extends Controller
             'kelurahan' => 'required|string|max:50',
             'kecamatan' => 'required|string|max:50',
             'kota' => 'required|string|max:50',
-            'jurusan_id' => 'required',
+            'jurusan_id' => 'required|exists:jurusan,id',
             'no_hp' => 'required|string|max:20',
-            // 'gelombang_id' => 'required|exists:gelombang_pendaftaran,id' // Dihapus karena otomatis
         ]);
+
+        // Validasi slot kelas untuk jurusan yang dipilih
+        $totalKapasitasJurusan = Kelas::where('jurusan_id', $request->jurusan_id)->sum('kapasitas');
+        if ($totalKapasitasJurusan <= 0) {
+            $jurusan = Jurusan::find($request->jurusan_id);
+            return redirect()->back()
+                ->with('error', 'Mohon maaf, semua kelas untuk jurusan ' . ($jurusan->nama ?? 'yang dipilih') . ' sudah penuh. Silakan pilih jurusan lain.')
+                ->withInput();
+        }
 
         // Logika Penentuan Gelombang Otomatis
         // Patokan 1: Waktu (tanggal_mulai <= sekarang AND tanggal_selesai >= sekarang)

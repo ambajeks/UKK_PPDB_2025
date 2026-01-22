@@ -208,6 +208,8 @@ class PendaftarSheet implements FromCollection, WithHeadings, WithTitle, WithSty
                 $pendaftar->status_verifikasi,
                 $pendaftar->created_at->format('d/m/Y H:i'),
                 $pendaftar->verified_at ? $pendaftar->verified_at->format('d/m/Y H:i') : '-',
+                $pendaftar->status_pengambilan_seragam === 'sudah' ? 'Sudah Diambil' : 'Belum Diambil',
+                $pendaftar->tanggal_pengambilan_seragam ? $pendaftar->tanggal_pengambilan_seragam->format('d/m/Y H:i') : '-',
             ];
         }
 
@@ -228,6 +230,8 @@ class PendaftarSheet implements FromCollection, WithHeadings, WithTitle, WithSty
             'STATUS VERIFIKASI',
             'TANGGAL DAFTAR',
             'VERIFIKASI PADA',
+            'STATUS SERAGAM',
+            'TANGGAL AMBIL SERAGAM',
         ];
     }
 

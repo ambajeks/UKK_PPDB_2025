@@ -29,6 +29,56 @@
                 <p class="text-gray-600 mt-2">Tanggal Pendaftaran: {{ $formulir->created_at->format('d F Y') }}</p>
             </div>
 
+            <!-- Peringatan Batas Waktu Pembayaran -->
+            @if(!$pembayaran || ($pembayaran && $pembayaran->status !== 'Lunas'))
+                @php
+                    $batasWaktu = 3; // hari
+                    $sisaHari = $batasWaktu - $formulir->created_at->diffInDays(now());
+                    $sisaJam = 24 - now()->hour; // perkiraan jam tersisa di hari terakhir
+                @endphp
+                
+                @if($sisaHari > 0)
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 rounded-r-xl shadow-sm p-4 mb-6">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-triangle text-yellow-500 text-xl"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-semibold text-yellow-800">Batas Waktu Pembayaran</h3>
+                                <p class="text-sm text-yellow-700 mt-1">
+                                    @if($sisaHari == 1)
+                                        <span class="font-bold text-red-600">⚠️ HARI TERAKHIR!</span> Segera lakukan pembayaran sebelum data Anda dihapus otomatis.
+                                    @elseif($sisaHari == 2)
+                                        <span class="font-bold text-orange-600">Sisa {{ $sisaHari }} hari lagi.</span> Segera lakukan pembayaran.
+                                    @else
+                                        Sisa <span class="font-bold">{{ $sisaHari }} hari</span> untuk menyelesaikan pembayaran.
+                                    @endif
+                                </p>
+                                <p class="text-xs text-yellow-600 mt-2">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Data pendaftaran yang tidak dibayar dalam 3 hari akan dihapus otomatis dari sistem.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    <div class="bg-red-50 border-l-4 border-red-500 rounded-r-xl shadow-sm p-4 mb-6">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-times-circle text-red-500 text-xl"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-semibold text-red-800">Waktu Pembayaran Habis</h3>
+                                <p class="text-sm text-red-700 mt-1">
+                                    Batas waktu pembayaran telah terlewati. Data Anda akan segera dihapus dari sistem.
+                                    Silakan daftar ulang jika masih ingin melanjutkan pendaftaran.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            @endif
+
             <!-- Progress Checklist -->
             <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">Progress Pendaftaran</h2>

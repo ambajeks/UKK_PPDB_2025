@@ -218,6 +218,7 @@
                                 <th>Kode Transaksi</th>
                                 <th>Tanggal Daftar</th>
                                 <th>Status</th>
+                                <th>Seragam</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -255,6 +256,17 @@
                                     <td>{{ $p->created_at->format('d-m-Y H:i') }}</td>
                                     <td>
                                         <span class="badge bg-success">Terverifikasi</span>
+                                    </td>
+                                    <td>
+                                        @if($p->status_pengambilan_seragam === 'sudah')
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i>Sudah
+                                            </span>
+                                        @else
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="fas fa-clock me-1"></i>Belum
+                                            </span>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach

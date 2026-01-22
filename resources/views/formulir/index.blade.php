@@ -353,12 +353,27 @@
                 required {{ $sudahBayar ? 'disabled' : '' }}>
                 <option value="">Pilih Jurusan</option>
                 @foreach ($jurusan as $j)
-                    <option value="{{ $j->id }}" {{ old('jurusan', $formulir->jurusan_id ?? '') == $j->id ? 'selected' : '' }}>{{$j->nama}}</option>
+                    @php
+                        $slotInfo = $jurusanSlots[$j->id] ?? ['tersedia' => 0, 'penuh' => true];
+                        $isPenuh = $slotInfo['penuh'];
+                        $slotTersedia = $slotInfo['tersedia'];
+                    @endphp
+                    <option value="{{ $j->id }}" 
+                        {{ old('jurusan', $formulir->jurusan_id ?? '') == $j->id ? 'selected' : '' }}
+                        {{ $isPenuh ? 'disabled' : '' }}>
+                        {{ $j->nama }} 
+                        @if($isPenuh)
+                            (PENUH)
+                        @else
+                            ({{ $slotTersedia }} slot tersedia)
+                        @endif
+                    </option>
                 @endforeach
             </select>
             @error('jurusan')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
             @enderror
+            <p class="mt-1 text-xs text-gray-500">Jurusan yang ditandai "PENUH" tidak dapat dipilih karena semua kelasnya sudah terisi.</p>
         </div>
 
         <!-- Gelombang Pendaftaran (Otomatis) -->
