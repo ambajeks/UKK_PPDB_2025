@@ -1,85 +1,137 @@
 @extends('layouts.admin')
 
-@section('title', 'Data Kelas')
+@section('title', 'Manajemen Kelas')
 
 @section('content')
 <div class="container-fluid">
-    <div class="card border-0 shadow-sm rounded-4">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><i class="bi bi-collection me-2"></i>Data Kelas</h5>
-            <a href="{{ route('kelas.create') }}" class="btn btn-light btn-sm text-primary fw-semibold">
-                <i class="bi bi-plus-circle"></i> Tambah Kelas
-            </a>
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0"><i class="bi bi-collection me-2"></i>Manajemen Kelas</h1>
+            <p class="text-muted mb-0">Kelola kelas berdasarkan jurusan</p>
         </div>
-        <div class="card-body">
-            @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
+    </div>
 
+    <!-- Statistik Global -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-mortarboard fs-1 me-3"></i>
+                        <div>
+                            <h6 class="mb-0">Total Jurusan</h6>
+                            <h2 class="mb-0">{{ $jurusans->count() }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-collection fs-1 me-3"></i>
+                        <div>
+                            <h6 class="mb-0">Total Kelas</h6>
+                            <h2 class="mb-0">{{ $totalKelas }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-people fs-1 me-3"></i>
+                        <div>
+                            <h6 class="mb-0">Total Siswa Terassign</h6>
+                            <h2 class="mb-0">{{ $totalSiswaTerassign }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daftar Jurusan -->
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-grid me-2"></i>Daftar Jurusan</h5>
+        </div>
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-primary">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
                         <tr class="text-center">
                             <th width="5%">#</th>
-                            <th>Nama Kelas</th>
-                            <th>Jurusan</th>
-                            <th>Tipe</th>
-                            <th>Kapasitas Tersisa</th>
-                            <th>Jumlah Siswa</th>
-                            <th>Tahun Ajaran</th>
-                            <th width="15%">Aksi</th>
+                            <th class="text-start">Jurusan</th>
+                            <th>Kode</th>
+                            <th>Total Kelas</th>
+                            <th>Siswa / Kapasitas</th>
+                            <th>Slot Tersedia</th>
+                            <th>Status</th>
+                            <th width="12%">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($kelas as $index => $k)
-                            <tr class="text-center">
-                                <td>{{ $kelas->firstItem() + $index }}</td>
-                                <td class="fw-semibold">{{ $k->nama_kelas }}</td>
+                        @forelse($jurusans as $index => $jurusan)
+                            <tr>
+                                <td class="text-center">{{ $index + 1 }}</td>
                                 <td>
-                                    <span class="badge bg-info">{{ $k->jurusan->kode_jurusan ?? '-' }}</span>
-                                    <br><small class="text-muted">{{ $k->jurusan->nama ?? '-' }}</small>
+                                    <strong>{{ $jurusan->nama }}</strong>
                                 </td>
-                                <td>
-                                    <span class="badge {{ $k->tipe_kelas == 'Unggulan' ? 'bg-warning text-dark' : 'bg-secondary' }}">
-                                        {{ $k->tipe_kelas ?? 'Reguler' }}
-                                    </span>
+                                <td class="text-center">
+                                    <span class="badge bg-info">{{ $jurusan->kode_jurusan }}</span>
                                 </td>
-                                <td>
-                                    <span class="badge {{ $k->kapasitas < 5 ? 'bg-danger' : ($k->kapasitas < 10 ? 'bg-warning text-dark' : 'bg-success') }}">
-                                        {{ $k->kapasitas }} slot
-                                    </span>
+                                <td class="text-center">
+                                    <span class="badge bg-secondary">{{ $jurusan->kelas_count }} kelas</span>
                                 </td>
-                                <td>
-                                    <span class="badge bg-primary">{{ $k->siswa_count }} siswa</span>
+                                <td class="text-center">
+                                    @if($jurusan->kelas_count > 0)
+                                        <strong>{{ $jurusan->total_siswa }}</strong> / {{ $jurusan->total_kapasitas }}
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
                                 </td>
-                                <td>{{ $k->tahun_ajaran }}</td>
-                                <td>
-                                    <a href="{{ route('kelas.show', $k) }}" class="btn btn-info btn-sm" title="Lihat Siswa">
-                                        <i class="bi bi-eye"></i>
+                                <td class="text-center">
+                                    @if($jurusan->kelas_count > 0)
+                                        <span class="badge {{ $jurusan->slot_tersedia > 10 ? 'bg-success' : ($jurusan->slot_tersedia > 0 ? 'bg-warning text-dark' : 'bg-danger') }}">
+                                            {{ $jurusan->slot_tersedia }} slot
+                                        </span>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    @if($jurusan->kelas_count == 0)
+                                        <span class="badge bg-secondary">
+                                            <i class="bi bi-dash-circle me-1"></i>Belum Ada Kelas
+                                        </span>
+                                    @elseif($jurusan->is_penuh)
+                                        <span class="badge bg-danger">
+                                            <i class="bi bi-x-circle me-1"></i>PENUH
+                                        </span>
+                                    @else
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-check-circle me-1"></i>Tersedia
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    <a href="{{ route('admin.kelas.manage', $jurusan) }}" class="btn btn-primary btn-sm">
+                                        <i class="bi bi-gear me-1"></i>Kelola
                                     </a>
-                                    <a href="{{ route('kelas.edit', $k) }}" class="btn btn-warning btn-sm" title="Edit">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <form action="{{ route('kelas.destroy', $k) }}" method="POST" class="d-inline" 
-                                          onsubmit="return confirm('Yakin ingin menghapus kelas ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm" title="Hapus">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center py-4">
+                                <td colspan="8" class="text-center py-5">
                                     <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
-                                    <p class="text-muted mt-2">Belum ada data kelas</p>
-                                    <a href="{{ route('kelas.create') }}" class="btn btn-primary btn-sm">
-                                        <i class="bi bi-plus-circle"></i> Tambah Kelas Pertama
+                                    <p class="text-muted mt-2">Belum ada jurusan. Tambahkan jurusan terlebih dahulu.</p>
+                                    <a href="{{ route('admin.jurusan.create') }}" class="btn btn-primary btn-sm">
+                                        <i class="bi bi-plus-circle me-1"></i>Tambah Jurusan
                                     </a>
                                 </td>
                             </tr>
@@ -87,16 +139,10 @@
                     </tbody>
                 </table>
             </div>
-
-            @if($kelas->hasPages())
-                <div class="d-flex justify-content-center mt-3">
-                    {{ $kelas->links() }}
-                </div>
-            @endif
         </div>
     </div>
 
-    <!-- Info Card -->
+    <!-- Info Box -->
     <div class="card border-0 shadow-sm rounded-4 mt-4">
         <div class="card-header bg-info text-white">
             <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Informasi Sistem Kelas</h6>
@@ -107,16 +153,15 @@
                     <h6><i class="bi bi-robot me-2"></i>Assign Kelas Otomatis</h6>
                     <p class="text-muted small mb-0">
                         Sistem akan otomatis menempatkan siswa ke kelas setelah pembayaran <strong>LUNAS</strong>. 
-                        Siswa akan ditempatkan ke kelas sesuai jurusan yang dipilih dengan kapasitas yang masih tersedia.
-                        Jika semua kelas penuh, sistem akan membuat kelas baru secara otomatis.
+                        Siswa akan ditempatkan ke kelas sesuai jurusan yang dipilih.
                     </p>
                 </div>
                 <div class="col-md-6">
-                    <h6><i class="bi bi-bar-chart me-2"></i>Ringkasan</h6>
-                    <ul class="list-unstyled small text-muted mb-0">
-                        <li><i class="bi bi-check-circle text-success me-1"></i> Total Kelas: <strong>{{ $kelas->total() }}</strong></li>
-                        <li><i class="bi bi-check-circle text-success me-1"></i> Total Siswa Terassign: <strong>{{ $totalSiswaTerassign ?? 0 }}</strong></li>
-                    </ul>
+                    <h6><i class="bi bi-lightbulb me-2"></i>Tips</h6>
+                    <p class="text-muted small mb-0">
+                        Klik tombol <strong>Kelola</strong> pada setiap jurusan untuk membuat dan mengatur kelas.
+                        Anda dapat membuat beberapa kelas sekaligus dengan fitur bulk create.
+                    </p>
                 </div>
             </div>
         </div>

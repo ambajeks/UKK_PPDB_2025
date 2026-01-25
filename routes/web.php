@@ -162,7 +162,12 @@ Route::middleware(['auth', 'can:admin'])
         Route::resource('gelombang', GelombangPendaftaranController::class);
         Route::resource('promo', PromoController::class);
         Route::resource('jurusan', JurusanController::class);
+        
+        // Custom kelas routes (harus sebelum resource)
+        Route::get('kelas/jurusan/{jurusan}', [KelasController::class, 'manage'])->name('kelas.manage');
+        Route::post('kelas/jurusan/{jurusan}/bulk-store', [KelasController::class, 'bulkStore'])->name('kelas.bulk-store');
         Route::resource('kelas', KelasController::class);
+        
         Route::resource('users', UserController::class);
         
         // Route untuk export laporan

@@ -9,12 +9,13 @@
             <h1 class="h3 mb-0">{{ $kelas->nama_kelas }}</h1>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item"><a href="{{ route('kelas.index') }}">Data Kelas</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('admin.kelas.index') }}">Manajemen Kelas</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('admin.kelas.manage', $kelas->jurusan) }}">{{ $kelas->jurusan->kode_jurusan }}</a></li>
                     <li class="breadcrumb-item active">{{ $kelas->nama_kelas }}</li>
                 </ol>
             </nav>
         </div>
-        <a href="{{ route('kelas.index') }}" class="btn btn-secondary">
+        <a href="{{ route('admin.kelas.manage', $kelas->jurusan) }}" class="btn btn-secondary">
             <i class="bi bi-arrow-left me-1"></i>Kembali
         </a>
     </div>

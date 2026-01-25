@@ -111,6 +111,13 @@
                 </li>
 
                 <li class="nav-item">
+                    <a href="{{ route('admin.kelas.index') }}"
+                       class="nav-link {{ request()->routeIs('admin.kelas.*') ? 'active' : '' }}">
+                       <i class="fas fa-chalkboard me-1"></i>Kelas
+                    </a>
+                </li>
+
+                <li class="nav-item">
                     <a href="{{ route('admin.gelombang.index') }}"
                        class="nav-link {{ request()->routeIs('admin.gelombang.*') ? 'active' : '' }}">
                        <i class="fas fa-wave-square me-1"></i>Gelombang
